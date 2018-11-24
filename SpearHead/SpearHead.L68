@@ -1,0 +1,1869 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 11/23/2018 9:43:40 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :SpearHead
+00000000                             3  * Written by :Yixiang Xu
+00000000                             4  * Date       :9/28/18
+00000000                             5  * Description:Assembly Game #1
+00000000                             6  *-----------------------------------------------------------
+00000000  =00000000                  7  BLACK                               EQU     $00000000
+00000000  =00FFFFFF                  8  WHITE                               EQU     $00FFFFFF
+00000000  =00800080                  9  PURPLE                              EQU     $00800080
+00000000  =00FF0000                 10  BLUE                                EQU     $00FF0000
+00000000                            11  
+00000000  =00000025                 12  LEFT_KEY                            EQU     $25
+00000000  =00000026                 13  UP_KEY                              EQU     $26
+00000000  =00000027                 14  RIGHT_KEY                           EQU     $27
+00000000  =00000028                 15  DOWN_KEY                            EQU     $28
+00000000                            16  
+00000000  =000003E8                 17  OUTPUT_WIDTH                        EQU     1000
+00000000  =00000320                 18  OUTPUT_HEIGHT                       EQU     800
+00000000                            19  
+00000000  =00000005                 20  KEYBOARD_INPUT_READ_TRAP            EQU     5
+00000000  =00000008                 21  GET_TIME_FROM_MIDNIGHT_TRAP         EQU     8
+00000000  =0000000B                 22  CLEAR_SCREEN_TRAP                   EQU     11
+00000000  =0000000E                 23  DISPLAY_STRING_TRAP                 EQU     14
+00000000  =00000013                 24  KEYBOARD_INPUT_TRAP                 EQU     19
+00000000  =00000021                 25  OUTPUT_RESOLUTION_TRAP              EQU     33
+00000000  =00000049                 26  PLAY_SOUND_TRAP                     EQU     73
+00000000  =00000050                 27  PEN_COLOR_TRAP                      EQU     80
+00000000  =00000051                 28  FILL_COLOR_TRAP                     EQU     81
+00000000  =00000052                 29  DRAW_PIXEL_TRAP                     EQU     82
+00000000  =00000054                 30  DRAW_LINE_TRAP                      EQU     84
+00000000  =00000057                 31  DRAW_FILL_RECT_TRAP                 EQU     87
+00000000  =00000058                 32  DRAW_FILL_ELLIPSE                   EQU     88
+00000000  =0000005A                 33  DRAW_RECT_TRAP                      EQU     90
+00000000  =0000005C                 34  DRAW_MODE_TRAP                      EQU     92
+00000000  =0000005D                 35  PEN_WIDTH_TRAP                      EQU     93
+00000000  =0000005E                 36  REPAINT_TRAP                        EQU     94
+00000000                            37  
+00000000  =0000FF00                 38  CLEAR_SCREEN                        EQU     $FF00
+00000000  =00000011                 39  DOUBLE_BUFFER                       EQU     17
+00000000  =00000004                 40  FRAC_BITS                           EQU     4
+00000000                            41  
+00000000  =00001090                 42  LEFT_X_MAIN_CONTAINER               EQU     265<<FRAC_BITS
+00000000  =00000A50                 43  TOP_Y_MAIN_CONTAINER                EQU     165<<FRAC_BITS
+00000000  =000001EA                 44  WIDTH_MAIN_CONTAINER                EQU     490
+00000000  =000001EA                 45  HEIGHT_MAIN_CONTAINER               EQU     490
+00000000  =00000014                 46  THICKNESS_MAIN_CONTAINER            EQU     20
+00000000                            47  
+00000000  =00001A90                 48  LEFT_X_CONTAINER                    EQU     425<<FRAC_BITS
+00000000  =00001450                 49  TOP_Y_CONTAINER                     EQU     325<<FRAC_BITS
+00000000  =000000A0                 50  WIDTH_CONTAINER                     EQU     160
+00000000  =000000A0                 51  HEIGHT_CONTAINER                    EQU     160
+00000000  =0000000A                 52  THICKNESS_CONTAINER                 EQU     10
+00000000  =00000032                 53  SIZE_TILE                           EQU     50
+00000000                            54  
+00000000  =0000001E                 55  SIZE_USER_INPUT_CONTROL             EQU     30
+00000000                            56  
+00000000  =0000000C                 57  NUMBER_SPEARS                       EQU     12
+00000000  =00000006                 58  DATA_SIZE_SPEARS_ARRAY              EQU     6
+00000000  =00000012                 59  GROUP_SIZE_SPEARS_ARRAY             EQU     18
+00000000                            60  
+00000000  =00000008                 61  ISSPAWNED_BIT_SPEAR_VAR             EQU     8
+00000000  =00000009                 62  ISATTACKING_BIT_SPEAR_VAR           EQU     9
+00000000  =00000000                 63  STATUS_SPEAR_VAR                    EQU     0
+00000000  =00000002                 64  OUTPUT_LEFT_X_SPEAR_VAR             EQU     2
+00000000  =00000004                 65  OUTPUT_TOP_Y_SPEAR_VAR              EQU     4
+00000000                            66  
+00000000  =0000001E                 67  SPEAR_IMAGE_SIZE                    EQU     30
+00000000                            68  
+00000000  =0000000A                 69  GAP_BETWEEN_SPEAR_SIDE_AND_TILE     EQU     10
+00000000  =00000014                 70  GAP_BETWEEN_SPEARHEAD_AND_TILE      EQU     20
+00000000                            71  
+00000000  =00000001                 72  TOP_DIRECTION                       EQU     $1
+00000000  =00000006                 73  RIGHT_DIRECTION                     EQU     $6
+00000000  =00000009                 74  BOTTOM_DIRECTION                    EQU     $9
+00000000  =00000002                 75  LEFT_DIRECTION                      EQU     $2
+00000000                            76  
+00000000  =00000009                 77  NUMBER_SPEARS_ON_EACH_WALL          EQU     9
+00000000                            78  
+00000000  =0000000C                 79  ACCELERATION_SPEED                  EQU     12
+00000000                            80  
+00000000  =00000001                 81  BIT_MASK_0001                       EQU     1
+00000000  =00000002                 82  BIT_MASK_0010                       EQU     2
+00000000  =00000003                 83  BIT_MASK_0011                       EQU     3
+00000000  =00000004                 84  BIT_MASK_0100                       EQU     4
+00000000  =00000008                 85  BIT_MASK_1000                       EQU     8
+00000000  =00000040                 86  BIT_MASK_01000000                   EQU     64
+00000000                            87  
+00000000  =00000008                 88  ONE_BYTE_BITS                       EQU     8
+00000000  =00000004                 89  BYTES_OF_A_LONG_WORD                EQU     4
+00000000                            90  
+00000000  =00000002                 91  MAX_LOCATION_IN_CONTAINER           EQU     2
+00000000                            92  
+00000000  =000003B6                 93  LEFT_X_7SEGMENT_IN_ONES             EQU     950
+00000000  =00000384                 94  LEFT_X_7SEGMENT_IN_TENS             EQU     900
+00000000  =00000014                 95  TOP_Y_7SEGMENT                      EQU     20
+00000000  =0000001E                 96  SIZE_7SEGMENT                       EQU     30
+00000000  =00000005                 97  PEN_WIDTH_7SEGMENT                  EQU     5
+00000000                            98  
+00000000  =00000000                 99  START_X_7SEG_VAR                    EQU     0
+00000000  =00000001                100  START_Y_7SEG_VAR                    EQU     1
+00000000  =00000002                101  END_X_7SEG_VAR                      EQU     2
+00000000  =00000003                102  END_Y_7SEG_VAR                      EQU     3
+00000000                           103  
+00000000  =00000008                104  WAVE_PERIOD_DIFFICULTY_UP           EQU     8
+00000000                           105  
+00000000  =0000012C                106  CONTAINER_MOVE_SPEED                EQU     300
+00000000                           107  
+00000000  =00000050                108  REST_TIME                           EQU     80
+00000000                           109  
+00000000  =00000005                110  EVERY_X_WAVES                       EQU     5
+00000000                           111  
+00000000  =00000064                112  MAX_SPEAR_SPEED                     EQU     100
+00000000                           113  
+00001000                           114  START   ORG     $1000
+00001000                           115  
+00001000                           116  *Set up start layout
+00001000                           117  SetUp:
+00001000                           118      *Set output resolution
+00001000  103C 0021                119      move.b  #OUTPUT_RESOLUTION_TRAP,d0
+00001004  223C 000003E8            120      move.l  #OUTPUT_WIDTH,d1
+0000100A  4841                     121      swap.w  d1
+0000100C  323C 0320                122      move.w  #OUTPUT_HEIGHT,d1
+00001010  4E4F                     123      TRAP    #15
+00001012                           124  
+00001012                           125      *Set pen color to white
+00001012  103C 0050                126      move.b  #PEN_COLOR_TRAP,d0
+00001016  223C 00FFFFFF            127      move.l  #WHITE,d1
+0000101C  4E4F                     128      TRAP    #15
+0000101E                           129      
+0000101E                           130      *Set fill color to black
+0000101E  7051                     131      move.l  #FILL_COLOR_TRAP,d0
+00001020  7200                     132      move.l  #BLACK,d1
+00001022  4E4F                     133      TRAP    #15
+00001024                           134      
+00001024                           135      *Enable double buffer
+00001024  705C                     136      move.l  #DRAW_MODE_TRAP,d0
+00001026  7211                     137      move.l  #DOUBLE_BUFFER,d1
+00001028  4E4F                     138      TRAP    #15
+0000102A                           139      
+0000102A                           140      *Set main container
+0000102A  4EB9 00001C32            141      jsr     DrawMainContainer
+00001030                           142      
+00001030                           143      *Set container
+00001030  4EB9 00001C88            144      jsr     DrawContainer
+00001036                           145  
+00001036                           146      *Set user input control start coordinates
+00001036  7A01                     147      move.l  #1,d5
+00001038  7C01                     148      move.l  #1,d6
+0000103A  4EB9 00001BC6            149      jsr     DrawUserInputControl
+00001040                           150      
+00001040  43F9 00001F49            151      lea     StartMessage,a1
+00001046  700E                     152      move.l  #DISPLAY_STRING_TRAP,d0
+00001048  4E4F                     153      TRAP    #15
+0000104A                           154      
+0000104A  705E                     155      move.l  #REPAINT_TRAP,d0
+0000104C  4E4F                     156      TRAP    #15
+0000104E                           157  *Wait for any key pressed to start 
+0000104E                           158  WaitUntilStart:
+0000104E  4281                     159      clr.l   d1
+00001050  103C 0005                160      move.b  #KEYBOARD_INPUT_READ_TRAP,d0
+00001054  4E4F                     161      TRAP    #15
+00001056  0281 000000FF            162      andi.l  #$FF,d1
+0000105C  67F0                     163      beq     WaitUntilStart
+0000105E  4EB9 0000154C            164      jsr     InitGameData
+00001064                           165  GameLoop:
+00001064  4EB9 0000147C            166      jsr     UpdateScore
+0000106A  4EB9 00001B82            167      jsr     UpdateScreen
+00001070  4EB9 000015E6            168      jsr     CollisionDetect
+00001076  4EB9 00001AB8            169      jsr     KeyboardListener
+0000107C  4EB9 00001C32            170      jsr     DrawMainContainer
+00001082  4EB9 00001C88            171      jsr     DrawContainer
+00001088  4EB9 00001BC6            172      jsr     DrawUserInputControl
+0000108E  4EB9 000012D0            173      jsr     UpdateWarningSystem
+00001094  4EB9 000016C2            174      jsr     UpdateSpears
+0000109A  4EB9 000010D8            175      jsr     UpdateContainer
+000010A0  4EB9 000010AC            176      jsr     RestBetweenAttack
+000010A6                           177      
+000010A6  60BC                     178      bra     GameLoop
+000010A8                           179      
+000010A8  FFFF FFFF                180      SIMHALT
+000010AC                           181  
+000010AC                           182  *Gap between each attack
+000010AC                           183  RestBetweenAttack:
+000010AC  0C39 0000 00001F77       184      cmp.b   #0,IsResting
+000010B4  6700 0020                185      beq     NoRest
+000010B8                           186      
+000010B8  7008                     187      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0
+000010BA  4E4F                     188      TRAP    #15
+000010BC                           189      
+000010BC  2039 00001F78            190      move.l  StartRestTime,d0
+000010C2  9280                     191      sub.l   d0,d1
+000010C4                           192      
+000010C4  B2BC 00000050            193      cmp.l   #REST_TIME,d1
+000010CA  6D00 000A                194      blt     NoRest
+000010CE                           195      
+000010CE  13FC 0000 00001F77       196      move.b  #0,IsResting
+000010D6                           197  NoRest:
+000010D6  4E75                     198      rts
+000010D8                           199      
+000010D8                           200  *Handle container movement
+000010D8                           201  UpdateContainer:
+000010D8  0C39 0001 00001F68       202      cmp.b   #1,NeedWarning  ;no move when it is warning
+000010E0  6700 00E6                203      beq     FinishUpdatingContainer
+000010E4                           204      
+000010E4  0C39 0001 00001F69       205      cmp.b   #1,IsWarning    
+000010EC  6700 00DA                206      beq     FinishUpdatingContainer
+000010F0                           207      
+000010F0  0C39 0001 00001F77       208      cmp.b   #1,IsResting    ;no move when it is rest time
+000010F8  6700 00CE                209      beq     FinishUpdatingContainer
+000010FC                           210      
+000010FC  4280                     211      clr.l   d0
+000010FE  1039 00001F74            212      move.b  WarningIndex,d0 ;warning index determine which attack next order
+00001104  1036 0000                213      move.b  (a6,d0),d0  ;1,2,6,9 trigger container move
+00001108  C0FC 0004                214      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+0000110C                           215      
+0000110C  0C39 0001 00001F75       216      cmp.b   #1,IsContainerMoving 
+00001114  6700 000E                217      beq     NoSetUpContainerMove
+00001118                           218      
+00001118  49F9 000021AC            219      lea     ContainerCheckFunctionTable,a4
+0000111E  2A74 0000                220      move.l  (a4,d0),a5
+00001122  4E95                     221      jsr     (a5)
+00001124                           222  NoSetUpContainerMove:
+00001124  0C39 0000 00001F75       223      cmp.b   #0,IsContainerMoving
+0000112C  6700 009A                224      beq     FinishUpdatingContainer
+00001130                           225      
+00001130  740C                     226      move.l  #ACCELERATION_SPEED,d2  ;calculate speed based on frame
+00001132  2239 00001F80            227      move.l  FrameTime,d1
+00001138  C4C1                     228      mulu.w  d1,d2
+0000113A  D5B9 00001F14            229      add.l   d2,ContainerSpeed
+00001140                           230      
+00001140  43F9 000021D4            231      lea     ContainerMoveFunctionTable,a1   ;move based on direction
+00001146  2A71 0000                232      move.l  (a1,d0),a5
+0000114A  4E95                     233      jsr     (a5)
+0000114C                           234      
+0000114C  0C39 0000 00001F76       235      cmp.b   #0,FinishContainerMove
+00001154  6700 0072                236      beq     FinishUpdatingContainer
+00001158                           237      
+00001158  13FC 0000 00001F75       238      move.b  #0,IsContainerMoving    ;reset status if a container move is finished
+00001160  13FC 0000 00001F76       239      move.b  #0,FinishContainerMove
+00001168  23FC 00000000 00001F14   240      move.l  #0,ContainerSpeed
+00001172                           241      
+00001172  13FC 0001 00001F77       242      move.b  #1,IsResting    ;player needs time to prepare between attack
+0000117A  7008                     243      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0
+0000117C  4E4F                     244      TRAP    #15
+0000117E  23C1 00001F78            245      move.l  d1,StartRestTime
+00001184                           246      
+00001184  5239 00001F74            247      addi.b  #1,WarningIndex ;if spear attack is finished, move to next attack
+0000118A  4280                     248      clr.l   d0
+0000118C  1039 00001F74            249      move.b  WarningIndex,d0
+00001192  1036 0000                250      move.b  (a6,d0),d0
+00001196  B0BC 000000FF            251      cmp.l   #$FF,d0
+0000119C  6600 002A                252      bne     FinishUpdatingContainer
+000011A0                           253      
+000011A0  4EB9 000011CA            254      jsr     PutContainerBackToCenter    ;if current attack is "FF" wave is over
+000011A6                           255      
+000011A6  13FC 0001 00001F68       256      move.b  #1,NeedWarning  ;reopen warning system
+000011AE  5239 00002210            257      addi.b  #1,Score    ;pass each wave give one point
+000011B4                           258      
+000011B4  1039 00002210            259      move.b  Score,d0
+000011BA  80FC 0005                260      divu.w  #EVERY_X_WAVES,d0
+000011BE  6700 0008                261      beq     FinishUpdatingContainer
+000011C2  5239 00001F64            262      addi.b  #1,SpearSpawnChance ;each several waves increases the chance spears spawn
+000011C8                           263  FinishUpdatingContainer:
+000011C8  4E75                     264      rts
+000011CA                           265  
+000011CA                           266  *Move container to center
+000011CA                           267  PutContainerBackToCenter:
+000011CA  33FC 1A90 00001F30       268      move.w  #LEFT_X_CONTAINER,LeftXContainer
+000011D2  33FC 1450 00001F32       269      move.w  #TOP_Y_CONTAINER,TopYContainer
+000011DA                           270      
+000011DA  4E75                     271      rts
+000011DC                           272  
+000011DC                           273  *Container move Check function
+000011DC                           274  StartContainerMove:
+000011DC  13FC 0001 00001F75       275      move.b  #1,IsContainerMoving
+000011E4                           276  NoContainerMove:
+000011E4  4E75                     277      rts
+000011E6                           278  
+000011E6                           279  *Functions for container move based on direction
+000011E6                           280  UpdateContainerLeftMove:
+000011E6  2439 00001F80            281      move.l  FrameTime,d2
+000011EC  2239 00001F14            282      move.l  ContainerSpeed,d1
+000011F2  C4C1                     283      mulu.w  d1,d2
+000011F4  9579 00001F30            284      sub.w   d2,LeftXContainer
+000011FA                           285      
+000011FA                           286      *if touch the bottom,reset position
+000011FA  3039 00001F30            287      move.w  LeftXContainer,d0   ;left wall
+00001200  E880                     288      asr.l   #FRAC_BITS,d0
+00001202  2E3C 00000113            289      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d7
+00001208  B087                     290      cmp.l   d7,d0
+0000120A  6E00 00C2                291      bgt     NoTouchBottom
+0000120E  E987                     292      asl.l   #FRAC_BITS,d7
+00001210  33C7 00001F30            293      move.w  d7,LeftXContainer
+00001216                           294      
+00001216  13FC 0001 00001F76       295      move.b  #1,FinishContainerMove
+0000121E                           296      
+0000121E  4E75                     297      rts    
+00001220                           298  
+00001220                           299  UpdateContainerRightMove:
+00001220  2439 00001F80            300      move.l  FrameTime,d2
+00001226  2239 00001F14            301      move.l  ContainerSpeed,d1
+0000122C  C4C1                     302      mulu.w  d1,d2
+0000122E  D579 00001F30            303      add.w   d2,LeftXContainer
+00001234                           304      
+00001234  3039 00001F30            305      move.w  LeftXContainer,d0   ;right wall
+0000123A  E880                     306      asr.l   #FRAC_BITS,d0
+0000123C  2E3C 0000023F            307      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + WIDTH_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - WIDTH_CONTAINER),d7
+00001242  B087                     308      cmp.l   d7,d0
+00001244  6D00 0088                309      blt     NoTouchBottom
+00001248  E987                     310      asl.l   #FRAC_BITS,d7
+0000124A  33C7 00001F30            311      move.w  d7,LeftXContainer
+00001250                           312      
+00001250  13FC 0001 00001F76       313      move.b  #1,FinishContainerMove
+00001258                           314      
+00001258  4E75                     315      rts    
+0000125A                           316      
+0000125A                           317  UpdateContainerUpMove:
+0000125A  2439 00001F80            318      move.l  FrameTime,d2
+00001260  2239 00001F14            319      move.l  ContainerSpeed,d1
+00001266  C4C1                     320      mulu.w  d1,d2
+00001268  9579 00001F32            321      sub.w   d2,TopYContainer
+0000126E                           322      
+0000126E  3039 00001F32            323      move.w  TopYContainer,d0   ;top wall
+00001274  E880                     324      asr.l   #FRAC_BITS,d0
+00001276  2E3C 000000AF            325      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d7
+0000127C  B087                     326      cmp.l   d7,d0
+0000127E  6E00 004E                327      bgt     NoTouchBottom
+00001282  E987                     328      asl.l   #FRAC_BITS,d7
+00001284  33C7 00001F32            329      move.w  d7,TopYContainer
+0000128A                           330      
+0000128A  13FC 0001 00001F76       331      move.b  #1,FinishContainerMove
+00001292                           332      
+00001292  4E75                     333      rts    
+00001294                           334      
+00001294                           335  UpdateContainerDownMove:
+00001294  2439 00001F80            336      move.l  FrameTime,d2
+0000129A  2239 00001F14            337      move.l  ContainerSpeed,d1
+000012A0  C4C1                     338      mulu.w  d1,d2
+000012A2  D579 00001F32            339      add.w   d2,TopYContainer
+000012A8                           340      
+000012A8  3039 00001F32            341      move.w  TopYContainer,d0   ;bottom wall
+000012AE  E880                     342      asr.l   #FRAC_BITS,d0
+000012B0  2E3C 000001DB            343      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + HEIGHT_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - HEIGHT_CONTAINER),d7
+000012B6  B087                     344      cmp.l   d7,d0
+000012B8  6D00 0014                345      blt     NoTouchBottom
+000012BC  E987                     346      asl.l   #FRAC_BITS,d7
+000012BE  33C7 00001F32            347      move.w  d7,TopYContainer
+000012C4                           348      
+000012C4  13FC 0001 00001F76       349      move.b  #1,FinishContainerMove
+000012CC                           350      
+000012CC  4E75                     351      rts
+000012CE                           352  
+000012CE                           353  NoTouchBottom:
+000012CE  4E75                     354      rts
+000012D0                           355      
+000012D0                           356  *Before each wave, container changes color to hint attack
+000012D0                           357  UpdateWarningSystem:
+000012D0  4280                     358      clr.l   d0
+000012D2  1039 00001F68            359      move.b  NeedWarning,d0
+000012D8  6700 0060                360      beq     ContainerChangeColor
+000012DC                           361      
+000012DC  4DF9 00001F6A            362      lea     WarningSequence,a6
+000012E2                           363      
+000012E2  4281                     364      clr.l   d1
+000012E4  1239 00002210            365      move.b  Score,d1
+000012EA  82FC 0008                366      divu.w  #WAVE_PERIOD_DIFFICULTY_UP,d1   ;score / wave period = x, x is the range of attack during a wave
+000012EE  48C1                     367      ext.l   d1
+000012F0  5281                     368      addi.l  #1,d1
+000012F2  4287                     369      clr.l   d7
+000012F4  4EB9 00001DD4            370      jsr     GetRandomByteIntoD7 ;random number / x, get the remainder y, y is attack number for this wave
+000012FA  8EC1                     371      divu.w  d1,d7
+000012FC  4847                     372      swap.w  d7
+000012FE  48C7                     373      ext.l   d7
+00001300  2207                     374      move.l  d7,d1
+00001302                           375      
+00001302  7400                     376      move.l  #0,d2   ;counter
+00001304                           377  WarningLoop:
+00001304  4EB9 00001DD4            378      jsr     GetRandomByteIntoD7
+0000130A  8EFC 000A                379      divu.w  #10,d7  ;0,3,4,5,7,8 spears attack
+0000130E  4847                     380      swap.w  d7      ;1,2,6,9 four direction container movement
+00001310  48C7                     381      ext.l   d7
+00001312  1D87 2000                382      move.b  d7,(a6,d2)
+00001316  5282                     383      addi.l  #1,d2
+00001318                           384      
+00001318  51C9 FFEA                385      dbf     d1,WarningLoop
+0000131C  1DBC 00FF 2000           386      move.b  #$FF,(a6,d2)    ;end of wave
+00001322  13FC 0000 00001F68       387      move.b  #0,NeedWarning  ;run once each wave
+0000132A  13FC 0000 00001F74       388      move.b  #0,WarningIndex
+00001332  13FC 0001 00001F69       389      move.b  #1,IsWarning
+0000133A                           390  ContainerChangeColor:
+0000133A  0C39 0000 00001F69       391      cmp.b   #0,IsWarning
+00001342  6700 00AE                392      beq     NoWarning
+00001346                           393      
+00001346  41F9 00002134            394      lea     WarningFunctionTable,a0
+0000134C  2639 00001F2C            395      move.l  ColorChangeSpeed,d3
+00001352  97B9 00001F28            396      sub.l   d3,ContainerColor   ;slowly turn to black
+00001358  02B9 00FFFFFF 00001F28   397      andi.l  #$FFFFFF,ContainerColor
+00001362  6600 0012                398      bne     CheckIfExceedMaximum
+00001366  23FC 00000000 00001F28   399      move.l  #0,ContainerColor
+00001370  44B9 00001F2C            400      neg.l   ColorChangeSpeed    ;back to white after become black
+00001376                           401  CheckIfExceedMaximum:
+00001376  0CB9 00FFFFFF 00001F28   402      cmp.l   #$FFFFFF,ContainerColor
+00001380  6600 0012                403      bne     DrawPartOfFrame
+00001384  23FC 00FFFFFF 00001F28   404      move.l  #$FFFFFF,ContainerColor ;avoid rgb value higher than 255
+0000138E  44B9 00001F2C            405      neg.l   ColorChangeSpeed    ;reset to positive value
+00001394                           406  DrawPartOfFrame:
+00001394  103C 0050                407      move.b  #PEN_COLOR_TRAP,d0
+00001398  2239 00001F28            408      move.l  ContainerColor,d1
+0000139E  4E4F                     409      TRAP    #15
+000013A0                           410      
+000013A0  705D                     411      move.l  #PEN_WIDTH_TRAP,d0  ;cover the frame of container
+000013A2  720A                     412      move.l  #THICKNESS_CONTAINER,d1
+000013A4  4E4F                     413      TRAP    #15
+000013A6                           414      
+000013A6  4287                     415      clr.l   d7  ;draw frame based on direction container moves to
+000013A8  1E39 00001F74            416      move.b  WarningIndex,d7
+000013AE  1E36 7000                417      move.b  (a6,d7),d7
+000013B2  CEFC 0004                418      mulu.w  #BYTES_OF_A_LONG_WORD,d7
+000013B6  2270 7000                419      move.l  (a0,d7),a1
+000013BA  4E91                     420      jsr     (a1)
+000013BC                           421      
+000013BC  0CB9 00FFFFFF 00001F28   422      cmp.l   #$FFFFFF,ContainerColor
+000013C6  6600 002A                423      bne     NoWarning
+000013CA  5239 00001F74            424      addi.b  #1,WarningIndex ;next warning
+000013D0  4280                     425      clr.l   d0
+000013D2  1039 00001F74            426      move.b  WarningIndex,d0
+000013D8  0C36 00FF 0000           427      cmp.b   #$FF,(a6,d0)
+000013DE  6600 0012                428      bne     NoWarning   
+000013E2  13FC 0000 00001F69       429      move.b  #0,IsWarning    ;pause warning system
+000013EA  13FC 0000 00001F74       430      move.b  #0,WarningIndex
+000013F2                           431  NoWarning:
+000013F2  4E75                     432      rts
+000013F4                           433  
+000013F4                           434  *Make the frames blink based on direction
+000013F4                           435  DrawLeftFrame:
+000013F4  223C 000001A4            436      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1),d1
+000013FA  243C 0000013B            437      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER),d2
+00001400  2601                     438      move.l  d1,d3
+00001402  283C 000001E5            439      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS + HEIGHT_CONTAINER),d4
+00001408                           440      
+00001408  705A                     441      move.l  #DRAW_RECT_TRAP,d0
+0000140A  4E4F                     442      TRAP    #15
+0000140C                           443      
+0000140C  4E75                     444      rts
+0000140E                           445      
+0000140E                           446  DrawRightFrame:
+0000140E  223C 00000244            447      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1 + WIDTH_CONTAINER),d1
+00001414  243C 0000013B            448      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER),d2
+0000141A  2601                     449      move.l  d1,d3
+0000141C  283C 000001E5            450      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS + HEIGHT_CONTAINER),d4
+00001422                           451      
+00001422  705A                     452      move.l  #DRAW_RECT_TRAP,d0
+00001424  4E4F                     453      TRAP    #15
+00001426                           454      
+00001426  4E75                     455      rts
+00001428                           456  
+00001428                           457  DrawTopFrame:
+00001428  223C 0000019F            458      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER),d1
+0000142E  243C 00000140            459      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1),d2
+00001434  263C 00000249            460      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS + WIDTH_CONTAINER),d3
+0000143A  2802                     461      move.l  d2,d4
+0000143C                           462      
+0000143C  705A                     463      move.l  #DRAW_RECT_TRAP,d0
+0000143E  4E4F                     464      TRAP    #15
+00001440                           465  
+00001440  4E75                     466      rts
+00001442                           467      
+00001442                           468  DrawBottomFrame:
+00001442  223C 0000019F            469      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER),d1
+00001448  243C 000001E0            470      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1 + HEIGHT_CONTAINER),d2
+0000144E  263C 00000249            471      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS + WIDTH_CONTAINER),d3
+00001454  2802                     472      move.l  d2,d4
+00001456                           473      
+00001456  705A                     474      move.l  #DRAW_RECT_TRAP,d0
+00001458  4E4F                     475      TRAP    #15
+0000145A                           476      
+0000145A  4E75                     477      rts
+0000145C                           478      
+0000145C                           479  DrawWholeFrame:
+0000145C  223C 000001A4            480      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1),d1
+00001462  243C 00000140            481      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1),d2
+00001468  263C 00000244            482      move.l  #(LEFT_X_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1 + WIDTH_CONTAINER),d3
+0000146E  283C 000001E0            483      move.l  #(TOP_Y_CONTAINER>>FRAC_BITS - THICKNESS_CONTAINER>>1 + HEIGHT_CONTAINER),d4
+00001474                           484      
+00001474  103C 005A                485      move.b  #DRAW_RECT_TRAP,d0
+00001478  4E4F                     486      TRAP    #15
+0000147A                           487      
+0000147A  4E75                     488      rts
+0000147C                           489     
+0000147C                           490  *Count score and draw 7 segment LED
+0000147C                           491  UpdateScore:
+0000147C                           492      *Set pen color to white
+0000147C  103C 0050                493      move.b  #PEN_COLOR_TRAP,d0
+00001480  223C 00FFFFFF            494      move.l  #WHITE,d1
+00001486  4E4F                     495      TRAP    #15
+00001488                           496      
+00001488  41F9 00002211            497      lea     SevenSegLEDArray,a0 ;score in ones
+0000148E  43F9 0000221B            498      lea     SevenSegIndexArray,a1
+00001494                           499      
+00001494  4280                     500      clr.l   d0
+00001496  4282                     501      clr.l   d2
+00001498                           502  
+00001498  1039 00002210            503      move.b  Score,d0 
+0000149E  80FC 000A                504      divu.w  #10,d0
+000014A2  4840                     505      swap.w  d0
+000014A4  48C0                     506      ext.l   d0
+000014A6  7240                     507      move.l  #BIT_MASK_01000000,d1
+000014A8  1430 0000                508      move.b  (a0,d0),d2
+000014AC  2E3C 000003B6            509      move.l  #LEFT_X_7SEGMENT_IN_ONES,d7
+000014B2                           510      
+000014B2  4EB9 000014E8            511      jsr     SevenSegLEDLoop
+000014B8                           512      
+000014B8  41F9 00002211            513      lea     SevenSegLEDArray,a0 ;score in tens
+000014BE  43F9 0000221B            514      lea     SevenSegIndexArray,a1
+000014C4                           515      
+000014C4  4280                     516      clr.l   d0
+000014C6  4282                     517      clr.l   d2
+000014C8                           518      
+000014C8  1039 00002210            519      move.b  Score,d0
+000014CE  80FC 000A                520      divu.w  #10,d0
+000014D2  48C0                     521      ext.l   d0
+000014D4  7240                     522      move.l  #BIT_MASK_01000000,d1
+000014D6  1430 0000                523      move.b  (a0,d0),d2
+000014DA  2E3C 00000384            524      move.l  #LEFT_X_7SEGMENT_IN_TENS,d7
+000014E0                           525      
+000014E0  4EB9 000014E8            526      jsr     SevenSegLEDLoop
+000014E6                           527      
+000014E6  4E75                     528      rts
+000014E8                           529  
+000014E8                           530  SevenSegLEDLoop:
+000014E8  2602                     531      move.l  d2,d3
+000014EA  C681                     532      and.l   d1,d3
+000014EC  6700 000C                533      beq     NotTurnOn
+000014F0  4EB9 00001502            534      jsr     DrawSevenSegLED
+000014F6  6000 0004                535      bra     NextSegment
+000014FA                           536  NotTurnOn:
+000014FA  5889                     537      adda.l  #4,a1
+000014FC                           538  NextSegment:
+000014FC  E281                     539      asr.l   #1,d1
+000014FE  66E8                     540      bne     SevenSegLEDLoop
+00001500                           541  FinishScore:
+00001500  4E75                     542      rts
+00001502                           543      
+00001502                           544  *Draw seven segment LED score
+00001502                           545  DrawSevenSegLED:
+00001502  48E7 F800                546      movem.l d0-d4,-(sp)
+00001506                           547      
+00001506  4281                     548      clr.l   d1
+00001508  4282                     549      clr.l   d2
+0000150A  4283                     550      clr.l   d3
+0000150C  4284                     551      clr.l   d4
+0000150E                           552      
+0000150E  705D                     553      move.l  #PEN_WIDTH_TRAP,d0
+00001510  7205                     554      move.l  #PEN_WIDTH_7SEGMENT,d1
+00001512  4E4F                     555      TRAP    #15
+00001514                           556      
+00001514  1219                     557      move.b (a1)+,d1 ;start index, x0,y0,x1,y1
+00001516  1419                     558      move.b (a1)+,d2
+00001518  1619                     559      move.b (a1)+,d3
+0000151A  1819                     560      move.b (a1)+,d4
+0000151C                           561      
+0000151C  C2FC 001E                562      mulu.w  #SIZE_7SEGMENT,d1   ;index * size = length of line
+00001520  C4FC 001E                563      mulu.w  #SIZE_7SEGMENT,d2
+00001524  C6FC 001E                564      mulu.w  #SIZE_7SEGMENT,d3
+00001528  C8FC 001E                565      mulu.w  #SIZE_7SEGMENT,d4
+0000152C                           566      
+0000152C  D287                     567      add.l   d7,d1 ;add output position
+0000152E  0682 00000014            568      add.l   #TOP_Y_7SEGMENT,d2
+00001534  D687                     569      add.l   d7,d3
+00001536  0684 00000014            570      add.l   #TOP_Y_7SEGMENT,d4
+0000153C                           571      
+0000153C  7054                     572      move.l  #DRAW_LINE_TRAP,d0
+0000153E  4E4F                     573      TRAP    #15
+00001540                           574      
+00001540  705D                     575      move.l  #PEN_WIDTH_TRAP,d0
+00001542  7201                     576      move.l  #1,d1
+00001544  4E4F                     577      TRAP    #15
+00001546                           578      
+00001546  4CDF 001F                579      movem.l (sp)+,d0-d4
+0000154A                           580      
+0000154A  4E75                     581      rts
+0000154C                           582      
+0000154C                           583  *Initialize initial game data
+0000154C                           584  InitGameData:
+0000154C  7A01                     585      move.l  #1,d5
+0000154E  7C01                     586      move.l  #1,d6
+00001550  4EB9 00001D44            587      jsr     InitSpears
+00001556  4EB9 00001A68            588      jsr     SpawnSpears
+0000155C  23FC 00000000 00001F10   589      move.l  #0,SpearSpeed
+00001566  23FC 00000000 00001F14   590      move.l  #0,ContainerSpeed
+00001570  13FC 0000 00002210       591      move.b  #0,Score
+00001578  13FC 0001 00001F68       592      move.b  #1,NeedWarning
+00001580  13FC 0000 00001F65       593      move.b  #0,IsSpearAttacking
+00001588  13FC 0000 00001F69       594      move.b  #0,IsWarning
+00001590  13FC 0000 00001F66       595      move.b  #0,FinishSpearAttack
+00001598  33FC 1A90 00001F30       596      move.w  #LEFT_X_CONTAINER,LeftXContainer
+000015A0  33FC 1450 00001F32       597      move.w  #TOP_Y_CONTAINER,TopYContainer
+000015A8  13FC 0000 00001F75       598      move.b  #0,IsContainerMoving
+000015B0  13FC 0000 00001F76       599      move.b  #0,FinishContainerMove
+000015B8  13FC 0000 00001F77       600      move.b  #0,IsResting
+000015C0  13FC 0000 00001F67       601      move.b  #0,IsDead
+000015C8  13FC 0003 00001F64       602      move.b  #3,SpearSpawnChance
+000015D0                           603      
+000015D0  7008                     604      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0 ;store game start time
+000015D2  4E4F                     605      TRAP    #15
+000015D4  23C1 00001F24            606      move.l  d1,GameStartTime
+000015DA                           607      
+000015DA                           608      *Randomness
+000015DA  7008                     609      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0
+000015DC  4E4F                     610      TRAP    #15
+000015DE  23C1 00001F04            611      move.l  d1,RANDOMVAL
+000015E4                           612      
+000015E4  4E75                     613      rts
+000015E6                           614      
+000015E6                           615  *Player dies if there is a collision with spears detected 
+000015E6                           616  CollisionDetect:
+000015E6  41F9 0000205C            617      lea     SpearsData,a0
+000015EC  43F9 00002134            618      lea     SpearsDataEnd,a1
+000015F2                           619      
+000015F2  4281                     620      clr.l   d1
+000015F4  4282                     621      clr.l   d2
+000015F6  7006                     622      move.l  #DATA_SIZE_SPEARS_ARRAY,d0
+000015F8                           623  CollisionLoop:
+000015F8  0828 0008 0000           624      btst    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a0)
+000015FE  6700 001A                625      beq     NextCollisionDetect
+00001602                           626      
+00001602  3228 0002                627      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a0),d1
+00001606  3428 0004                628      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a0),d2
+0000160A  E881                     629      asr.l   #FRAC_BITS,d1
+0000160C  E882                     630      asr.l   #FRAC_BITS,d2
+0000160E                           631      
+0000160E  4EB9 00001622            632      jsr     DetectRowHit
+00001614  4EB9 00001668            633      jsr     DetectColumnHit
+0000161A                           634  NextCollisionDetect:    
+0000161A  D1C0                     635      add.l   d0,a0
+0000161C  B1C9                     636      cmp.l   a1,a0
+0000161E  6DD8                     637      blt     CollisionLoop
+00001620                           638  
+00001620  4E75                     639      rts
+00001622                           640  
+00001622                           641  *check if collision happen in row
+00001622                           642  DetectRowHit:
+00001622  2601                     643      move.l  d1,d3
+00001624  2802                     644      move.l  d2,d4
+00001626                           645      
+00001626  B8B9 00001F20            646      cmp.l   UserInputY,d4
+0000162C  6600 0038                647      bne     NoRowHit
+00001630                           648      
+00001630  B6B9 00001F1C            649      cmp.l   UserInputX,d3   ;first check hit from left
+00001636  6C00 0016                650      bge     HitFromRight
+0000163A  0683 0000001E            651      addi.l  #SPEAR_IMAGE_SIZE,d3
+00001640  B6B9 00001F1C            652      cmp.l   UserInputX,d3
+00001646  6F00 001E                653      ble     NoRowHit
+0000164A  6000 0062                654      bra     LoseGame
+0000164E                           655  HitFromRight:
+0000164E  2601                     656      move.l  d1,d3
+00001650  2802                     657      move.l  d2,d4
+00001652                           658      
+00001652  0483 0000001E            659      subi.l  #SPEAR_IMAGE_SIZE,d3
+00001658  B6B9 00001F1C            660      cmp.l   UserInputX,d3
+0000165E  6C00 0006                661      bge     NoRowHit
+00001662  6000 004A                662      bra     LoseGame
+00001666                           663  NoRowHit:
+00001666  4E75                     664      rts
+00001668                           665  
+00001668                           666  *check if collision happen in column
+00001668                           667  DetectColumnHit:
+00001668  2601                     668      move.l  d1,d3
+0000166A  2802                     669      move.l  d2,d4
+0000166C                           670      
+0000166C  B2B9 00001F1C            671      cmp.l   UserInputX,d1
+00001672  6600 0038                672      bne     NoColumnHit
+00001676                           673      
+00001676  B8B9 00001F20            674      cmp.l   UserInputY,d4   ;first check hit from left
+0000167C  6C00 0016                675      bge     HitFromBottom
+00001680  0684 0000001E            676      addi.l  #SPEAR_IMAGE_SIZE,d4
+00001686  B8B9 00001F20            677      cmp.l   UserInputY,d4
+0000168C  6F00 001E                678      ble     NoColumnHit
+00001690  6000 001C                679      bra     LoseGame
+00001694                           680  HitFromBottom:
+00001694  2601                     681      move.l  d1,d3
+00001696  2802                     682      move.l  d2,d4
+00001698                           683      
+00001698  0484 0000001E            684      subi.l  #SPEAR_IMAGE_SIZE,d4
+0000169E  B8B9 00001F20            685      cmp.l   UserInputY,d4
+000016A4  6C00 0006                686      bge     NoColumnHit
+000016A8  6000 0004                687      bra     LoseGame
+000016AC                           688  NoColumnHit:
+000016AC  4E75                     689      rts
+000016AE                           690      
+000016AE                           691  LoseGame:
+000016AE  13FC 0001 00001F67       692      move.b  #1,IsDead
+000016B6  43F9 00001F49            693      lea     StartMessage,a1
+000016BC  700E                     694      move.l  #DISPLAY_STRING_TRAP,d0
+000016BE  4E4F                     695      TRAP    #15
+000016C0                           696      
+000016C0  4E75                     697      rts
+000016C2                           698      
+000016C2                           699  *Draw spears around the walls based on direction
+000016C2                           700  UpdateSpears:
+000016C2  0C39 0001 00001F68       701      cmp.b   #1,NeedWarning
+000016CA  6700 0042                702      beq     NoSetUpAttack
+000016CE                           703      
+000016CE  0C39 0001 00001F77       704      cmp.b   #1,IsResting
+000016D6  6700 0036                705      beq     NoSetUpAttack
+000016DA                           706      
+000016DA  0C39 0001 00001F69       707      cmp.b   #1,IsWarning
+000016E2  6700 002A                708      beq     NoSetUpAttack
+000016E6                           709      
+000016E6  0C39 0001 00001F65       710      cmp.b   #1,IsSpearAttacking
+000016EE  6700 001E                711      beq     NoSetUpAttack
+000016F2                           712      
+000016F2  4280                     713      clr.l   d0
+000016F4  1039 00001F74            714      move.b  WarningIndex,d0
+000016FA  1036 0000                715      move.b  (a6,d0),d0  ;0,3,4,5,7,8 trigger spear attack
+000016FE  C0FC 0004                716      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001702  49F9 0000215C            717      lea     SpearCheckFunctionTable,a4
+00001708  2A74 0000                718      move.l  (a4,d0),a5
+0000170C  4E95                     719      jsr     (a5) 
+0000170E                           720  NoSetUpAttack: 
+0000170E  43F9 0000205C            721      lea     SpearsData,a1
+00001714  45F9 00002134            722      lea     SpearsDataEnd,a2
+0000171A  47F9 00002184            723      lea     SpearsAttackFunctionTable,a3
+00001720  7E06                     724      move.l  #DATA_SIZE_SPEARS_ARRAY,d7
+00001722                           725      
+00001722  4284                     726      clr.l   d4
+00001724  0239 00FF 00001F65       727      andi.b  #$FF,IsSpearAttacking   ;if spears are attacking, add aceleration speed to spear speed
+0000172C  6700 0046                728      beq     SpearLoop
+00001730  740C                     729      move.l  #ACCELERATION_SPEED,d2
+00001732  2239 00001F80            730      move.l  FrameTime,d1
+00001738  C4C1                     731      mulu.w  d1,d2
+0000173A  D5B9 00001F10            732      add.l   d2,SpearSpeed
+00001740  2439 00001F10            733      move.l  SpearSpeed,d2   ;limit highest spear speed
+00001746  B4BC 00000064            734      cmp.l   #MAX_SPEAR_SPEED,d2
+0000174C  6F00 0010                735      ble     NoLimitSpeed
+00001750  23FC 00000064 00001F10   736      move.l  #MAX_SPEAR_SPEED,SpearSpeed
+0000175A  6000 0008                737      bra     SpearSpeedLimit
+0000175E                           738  NoLimitSpeed:
+0000175E  23C2 00001F10            739      move.l  d2,SpearSpeed
+00001764                           740  SpearSpeedLimit:
+00001764  2839 00001F10            741      move.l  SpearSpeed,d4
+0000176A  2039 00001F80            742      move.l  FrameTime,d0
+00001770  C8C0                     743      mulu.w  d0,d4
+00001772  4280                     744      clr.l   d0
+00001774                           745  SpearLoop:
+00001774  0829 0008 0000           746      btst    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+0000177A  6700 0054                747      beq     NextSpear
+0000177E                           748      
+0000177E  3029 0000                749      move.w  STATUS_SPEAR_VAR(a1),d0
+00001782  4880                     750      ext.w   d0
+00001784  C0FC 0004                751      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001788  2873 0000                752      move.l  (a3,d0),a4
+0000178C  4E94                     753      jsr     (a4)
+0000178E                           754      
+0000178E  0829 0008 0000           755      btst    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+00001794  6700 003A                756      beq     NextSpear
+00001798                           757  DrawSpear:
+00001798  48E7 0F00                758      movem.l d4-d7,-(sp) ;save coordinates
+0000179C                           759      
+0000179C  2F08                     760      move.l  a0,-(sp)
+0000179E                           761      
+0000179E  2F3C 00000000            762      move.l  #0,-(sp)   ;full image
+000017A4  2F3C 00000000            763      move.l  #0,-(sp)
+000017AA  2F3C 0000001E            764      move.l  #SPEAR_IMAGE_SIZE,-(sp)
+000017B0  2F3C 0000001E            765      move.l  #SPEAR_IMAGE_SIZE,-(sp)
+000017B6                           766  
+000017B6  3029 0004                767      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+000017BA  E880                     768      asr.l   #FRAC_BITS,d0
+000017BC  2F00                     769      move.l  d0,-(sp)
+000017BE                           770      
+000017BE  3029 0002                771      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+000017C2  E880                     772      asr.l   #FRAC_BITS,d0
+000017C4  2F00                     773      move.l  d0,-(sp)
+000017C6                           774      
+000017C6  4EB9 00001E02            775      jsr     DrawBitmapChunk
+000017CC  4CDF 00F0                776      movem.l (sp)+,d4-d7
+000017D0                           777  NextSpear:
+000017D0  D3C7                     778      add.l   d7,a1
+000017D2  B3CA                     779      cmp.l   a2,a1
+000017D4  6D9E                     780      blt     SpearLoop
+000017D6                           781      
+000017D6  0C39 0000 00001F66       782      cmp.b   #0,FinishSpearAttack
+000017DE  6700 0078                783      beq     BackToGameLoop
+000017E2                           784      
+000017E2  13FC 0000 00001F65       785      move.b  #0,IsSpearAttacking ;reset datas after spear attack finish
+000017EA  23FC 00000000 00001F10   786      move.l  #0,SpearSpeed
+000017F4  4EB9 00001A68            787      jsr     SpawnSpears
+000017FA  13FC 0000 00001F66       788      move.b  #0,FinishSpearAttack
+00001802                           789      
+00001802  13FC 0001 00001F77       790      move.b  #1,IsResting
+0000180A  7008                     791      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0
+0000180C  4E4F                     792      TRAP    #15
+0000180E  23C1 00001F78            793      move.l  d1,StartRestTime
+00001814                           794      
+00001814  5239 00001F74            795      addi.b  #1,WarningIndex ;if spear attack is finished, move to next attack
+0000181A  4280                     796      clr.l   d0
+0000181C  1039 00001F74            797      move.b  WarningIndex,d0
+00001822  1036 0000                798      move.b  (a6,d0),d0
+00001826  B0BC 000000FF            799      cmp.l   #$FF,d0
+0000182C  6600 002A                800      bne     BackToGameLoop
+00001830  4EB8 11CA                801      jsr     PutContainerBackToCenter
+00001834  13FC 0001 00001F68       802      move.b  #1,NeedWarning  ;if all attacks are finished,start new turn
+0000183C  5239 00002210            803      addi.b  #1,Score
+00001842                           804      
+00001842  4280                     805      clr.l   d0
+00001844  1039 00002210            806      move.b  Score,d0
+0000184A  80FC 0005                807      divu.w  #EVERY_X_WAVES,d0
+0000184E  6700 F978                808      beq     FinishUpdatingContainer
+00001852  5239 00001F64            809      addi.b  #1,SpearSpawnChance
+00001858                           810  BackToGameLoop:
+00001858  4E75                     811      rts
+0000185A                           812  
+0000185A                           813  StartSpearAttack:
+0000185A  13FC 0001 00001F65       814      move.b  #1,IsSpearAttacking
+00001862  43F9 00008526            815      lea     ShootSound,a1
+00001868  7049                     816      move.l  #PLAY_SOUND_TRAP,d0
+0000186A  4E4F                     817      TRAP    #15
+0000186C                           818  NoSpearAttack:
+0000186C  4E75                     819      rts
+0000186E                           820  
+0000186E                           821  *Move spear based on direction if it is attacking
+0000186E                           822  UpdateTopSpears:
+0000186E  4280                     823      clr.l   d0
+00001870  1039 00001F66            824      move.b  FinishSpearAttack,d0
+00001876  B03C 0001                825      cmp.b   #1,d0
+0000187A  6700 005C                826      beq     FinishTopSpearAttack
+0000187E                           827      
+0000187E  4280                     828      clr.l   d0  ;change spear bmp file to hint which spears are directing at player
+00001880  3029 0002                829      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+00001884  E880                     830      asr.l   #FRAC_BITS,d0
+00001886                           831      
+00001886  B0B9 00001F1C            832      cmp.l   UserInputX,d0
+0000188C  6700 001C                833      beq     IsTopSpearTargetingPlayer
+00001890                           834      
+00001890  3029 0004                835      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+00001894  E880                     836      asr.l   #FRAC_BITS,d0
+00001896                           837      
+00001896  B0B9 00001F20            838      cmp.l   UserInputY,d0
+0000189C  6700 000C                839      beq     IsTopSpearTargetingPlayer
+000018A0                           840      
+000018A0  41F9 00002238            841      lea     TopSpearBmp,a0
+000018A6  6000 0008                842      bra     TopSpearNotTargeting
+000018AA                           843  IsTopSpearTargetingPlayer:
+000018AA  41F9 0000592E            844      lea     TopSpearDBmp,a0
+000018B0                           845  TopSpearNotTargeting:
+000018B0  0239 00FF 00001F65       846      andi.b  #$FF,IsSpearAttacking
+000018B8  6700 01AC                847      beq     SpearNoChange
+000018BC                           848      
+000018BC  D969 0004                849      add.w   d4,OUTPUT_TOP_Y_SPEAR_VAR(a1)
+000018C0                           850      
+000018C0                           851      *if touch the bottom,reset position
+000018C0  3029 0004                852      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+000018C4  E880                     853      asr.l   #FRAC_BITS,d0
+000018C6  B0BC 0000024E            854      cmp.l   #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + HEIGHT_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - THICKNESS_CONTAINER - SPEAR_IMAGE_SIZE - 5),d0
+000018CC  6D00 0198                855      blt     SpearNoChange
+000018D0  13FC 0001 00001F66       856      move.b  #1,FinishSpearAttack
+000018D8                           857  FinishTopSpearAttack:
+000018D8  203C 000000AF            858      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d0
+000018DE  E980                     859      asl.l   #FRAC_BITS,d0
+000018E0  3340 0004                860      move.w  d0,OUTPUT_TOP_Y_SPEAR_VAR(a1)
+000018E4                           861      
+000018E4  08A9 0008 0000           862      bclr    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+000018EA                           863      
+000018EA  4E75                     864      rts
+000018EC                           865      
+000018EC                           866  UpdateRightSpears:
+000018EC  4280                     867      clr.l   d0
+000018EE  1039 00001F66            868      move.b  FinishSpearAttack,d0
+000018F4  B03C 0001                869      cmp.b   #1,d0
+000018F8  6700 005C                870      beq     FinishRightSpearAttack
+000018FC                           871      
+000018FC  4280                     872      clr.l   d0
+000018FE  3029 0002                873      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+00001902  E880                     874      asr.l   #FRAC_BITS,d0
+00001904                           875      
+00001904  B0B9 00001F1C            876      cmp.l   UserInputX,d0
+0000190A  6700 001C                877      beq     IsRightSpearTargetingPlayer
+0000190E                           878      
+0000190E  3029 0004                879      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+00001912  E880                     880      asr.l   #FRAC_BITS,d0
+00001914                           881      
+00001914  B0B9 00001F20            882      cmp.l   UserInputY,d0
+0000191A  6700 000C                883      beq     IsRightSpearTargetingPlayer
+0000191E                           884      
+0000191E  41F9 00002D36            885      lea     RightSpearBmp,a0
+00001924  6000 0008                886      bra     RightSpearNotTargeting
+00001928                           887  IsRightSpearTargetingPlayer:
+00001928  41F9 0000642C            888      lea     RightSpearDBmp,a0
+0000192E                           889  RightSpearNotTargeting:
+0000192E  0239 00FF 00001F65       890      andi.b  #$FF,IsSpearAttacking
+00001936  6700 012E                891      beq     SpearNoChange
+0000193A                           892      
+0000193A  9969 0002                893      sub.w   d4,OUTPUT_LEFT_X_SPEAR_VAR(a1)
+0000193E                           894      
+0000193E  3029 0002                895      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+00001942  E880                     896      asr.l   #FRAC_BITS,d0
+00001944  B0BC 00000113            897      cmp.l   #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d0
+0000194A  6E00 011A                898      bgt     SpearNoChange
+0000194E  13FC 0001 00001F66       899      move.b  #1,FinishSpearAttack
+00001956                           900  FinishRightSpearAttack:
+00001956  203C 000002B7            901      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + WIDTH_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - THICKNESS_CONTAINER - SPEAR_IMAGE_SIZE),d0
+0000195C  E980                     902      asl.l   #FRAC_BITS,d0
+0000195E  3340 0002                903      move.w  d0,OUTPUT_LEFT_X_SPEAR_VAR(a1)
+00001962                           904      
+00001962  08A9 0008 0000           905      bclr    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+00001968                           906      
+00001968  4E75                     907      rts
+0000196A                           908      
+0000196A                           909  UpdateBottomSpears: 
+0000196A  4280                     910      clr.l   d0
+0000196C  1039 00001F66            911      move.b  FinishSpearAttack,d0
+00001972  B03C 0001                912      cmp.b   #1,d0
+00001976  6700 005C                913      beq     FinishBottomSpearAttack
+0000197A                           914      
+0000197A  4280                     915      clr.l   d0
+0000197C  3029 0002                916      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+00001980  E880                     917      asr.l   #FRAC_BITS,d0
+00001982                           918      
+00001982  B0B9 00001F1C            919      cmp.l   UserInputX,d0
+00001988  6700 001C                920      beq     IsBottomSpearTargetingPlayer
+0000198C                           921      
+0000198C  3029 0004                922      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+00001990  E880                     923      asr.l   #FRAC_BITS,d0
+00001992                           924      
+00001992  B0B9 00001F20            925      cmp.l   UserInputY,d0
+00001998  6700 000C                926      beq     IsBottomSpearTargetingPlayer
+0000199C                           927      
+0000199C  41F9 00004332            928      lea     BottomSpearBmp,a0
+000019A2  6000 0008                929      bra     BottomSpearNotTargeting
+000019A6                           930  IsBottomSpearTargetingPlayer:
+000019A6  41F9 00007A28            931      lea     BottomSpearDBmp,a0
+000019AC                           932  BottomSpearNotTargeting:
+000019AC  0239 00FF 00001F65       933      andi.b  #$FF,IsSpearAttacking
+000019B4  6700 00B0                934      beq     SpearNoChange
+000019B8                           935      
+000019B8  9969 0004                936      sub.w   d4,OUTPUT_TOP_Y_SPEAR_VAR(a1)
+000019BC                           937      
+000019BC  3029 0004                938      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+000019C0  E880                     939      asr.l   #FRAC_BITS,d0
+000019C2  B0BC 000000AF            940      cmp.l   #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d0   
+000019C8  6E00 009C                941      bgt     SpearNoChange
+000019CC  13FC 0001 00001F66       942      move.b  #1,FinishSpearAttack
+000019D4                           943  FinishBottomSpearAttack:
+000019D4  203C 00000253            944      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + HEIGHT_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - THICKNESS_CONTAINER - SPEAR_IMAGE_SIZE),d0
+000019DA  E980                     945      asl.l   #FRAC_BITS,d0
+000019DC  3340 0004                946      move.w  d0,OUTPUT_TOP_Y_SPEAR_VAR(a1)
+000019E0                           947      
+000019E0  08A9 0008 0000           948      bclr    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+000019E6                           949      
+000019E6  4E75                     950      rts
+000019E8                           951      
+000019E8                           952  UpdateLeftSpears:
+000019E8  4280                     953      clr.l   d0
+000019EA  1039 00001F66            954      move.b  FinishSpearAttack,d0
+000019F0  B03C 0001                955      cmp.b   #1,d0
+000019F4  6700 005C                956      beq     FinishLeftSpearAttack
+000019F8                           957      
+000019F8  4280                     958      clr.l   d0
+000019FA  3029 0002                959      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+000019FE  E880                     960      asr.l   #FRAC_BITS,d0
+00001A00                           961      
+00001A00  B0B9 00001F1C            962      cmp.l   UserInputX,d0
+00001A06  6700 001C                963      beq     IsLeftSpearTargetingPlayer
+00001A0A                           964      
+00001A0A  3029 0004                965      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a1),d0
+00001A0E  E880                     966      asr.l   #FRAC_BITS,d0
+00001A10                           967      
+00001A10  B0B9 00001F20            968      cmp.l   UserInputY,d0
+00001A16  6700 000C                969      beq     IsLeftSpearTargetingPlayer
+00001A1A                           970      
+00001A1A  41F9 00003834            971      lea     LeftSpearBmp,a0
+00001A20  6000 0008                972      bra     LeftSpearNotTargeting
+00001A24                           973  IsLeftSpearTargetingPlayer:
+00001A24  41F9 00006F2A            974      lea     LeftSpearDBmp,a0
+00001A2A                           975  LeftSpearNotTargeting:
+00001A2A  0239 00FF 00001F65       976      andi.b  #$FF,IsSpearAttacking
+00001A32  6700 0032                977      beq     SpearNoChange
+00001A36                           978      
+00001A36  D969 0002                979      add.w   d4,OUTPUT_LEFT_X_SPEAR_VAR(a1)
+00001A3A                           980      
+00001A3A  3029 0002                981      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a1),d0
+00001A3E  E880                     982      asr.l   #FRAC_BITS,d0
+00001A40  B0BC 000002B7            983      cmp.l   #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + WIDTH_MAIN_CONTAINER - THICKNESS_MAIN_CONTAINER - THICKNESS_CONTAINER - SPEAR_IMAGE_SIZE),d0
+00001A46  6D00 001E                984      blt     SpearNoChange
+00001A4A  13FC 0001 00001F66       985      move.b  #1,FinishSpearAttack
+00001A52                           986  FinishLeftSpearAttack:
+00001A52  203C 00000113            987      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d0
+00001A58  E980                     988      asl.l   #FRAC_BITS,d0
+00001A5A  3340 0002                989      move.w  d0,OUTPUT_LEFT_X_SPEAR_VAR(a1)
+00001A5E                           990      
+00001A5E  08A9 0008 0000           991      bclr    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a1)
+00001A64                           992      
+00001A64  4E75                     993      rts
+00001A66                           994  
+00001A66                           995  SpearNoChange:
+00001A66  4E75                     996      rts
+00001A68                           997  
+00001A68                           998  *Spawn random spears
+00001A68                           999  SpawnSpears:
+00001A68  41F9 0000205C           1000      lea     SpearsData,a0
+00001A6E  43F9 00002134           1001      lea     SpearsDataEnd,a1
+00001A74                          1002  ChooseRandomSpear:
+00001A74  4EB9 00001DD4           1003      jsr     GetRandomByteIntoD7 ;no spawn if random value [0,SpearSpawnChance) = 0
+00001A7A  4280                    1004      clr.l   d0
+00001A7C  1039 00001F64           1005      move.b  SpearSpawnChance,d0
+00001A82  8EC0                    1006      divu.w  d0,d7
+00001A84  4847                    1007      swap.w  d7
+00001A86  48C7                    1008      ext.l   d7
+00001A88  BEBC 00000000           1009      cmp.l   #0,d7
+00001A8E  6700 001C               1010      beq     NoSpawn
+00001A92                          1011      
+00001A92  4287                    1012      clr.l   d7
+00001A94  4EB9 00001DD4           1013      jsr     GetRandomByteIntoD7
+00001A9A  8EFC 0003               1014      divu.w  #3,d7   ;get a random value in range 0-2
+00001A9E  4847                    1015      swap.w  d7  ;choose 1 for each spears 3 spears to be spawned
+00001AA0  48C7                    1016      ext.l   d7
+00001AA2                          1017      
+00001AA2  CEFC 0006               1018      mulu.w  #DATA_SIZE_SPEARS_ARRAY,d7
+00001AA6  08F0 0008 7000          1019      bset    #ISSPAWNED_BIT_SPEAR_VAR,STATUS_SPEAR_VAR(a0,d7)
+00001AAC                          1020  NoSpawn:
+00001AAC  D1FC 00000012           1021      add.l   #GROUP_SIZE_SPEARS_ARRAY,a0
+00001AB2                          1022      
+00001AB2  B1C9                    1023      cmp.l   a1,a0
+00001AB4  6DBE                    1024      blt     ChooseRandomSpear
+00001AB6                          1025      
+00001AB6  4E75                    1026      rts
+00001AB8                          1027  
+00001AB8                          1028  *Listen to key pressed
+00001AB8                          1029  KeyboardListener:
+00001AB8  0C39 0001 00001F67      1030      cmp.b   #1,IsDead
+00001AC0  6700 0090               1031      beq     AroundNoInput
+00001AC4                          1032      
+00001AC4  103C 0013               1033      move.b  #KEYBOARD_INPUT_TRAP,d0
+00001AC8  223C 25272628           1034      move.l  #(LEFT_KEY<<24 + RIGHT_KEY<<16 + UP_KEY<<8 + DOWN_KEY),d1
+00001ACE  4E4F                    1035      TRAP    #15
+00001AD0                          1036      
+00001AD0                          1037      *Remove debouncing
+00001AD0  0281 FFFFFFFF           1038      andi.l  #$FFFFFFFF,d1
+00001AD6  6700 0070               1039      beq     NoInput
+00001ADA                          1040      
+00001ADA  2E01                    1041      move.l  d1,d7
+00001ADC  C2B9 00001F08           1042      and.l   KeyPressedLastTime,d1   ;If a key is pressed last time, doesn't count this time
+00001AE2                          1043      
+00001AE2  4687                    1044      not.l   d7
+00001AE4  23C7 00001F08           1045      move.l  d7,KeyPressedLastTime
+00001AEA                          1046      
+00001AEA                          1047      *User input control moves when arrow key is pressed
+00001AEA  41F9 000021FC           1048      lea     KeyPressFunctionTable,a0
+00001AF0                          1049      
+00001AF0  2001                    1050      move.l  d1,d0   ;check if left arrow is pressed
+00001AF2  E080                    1051      asr.l   #ONE_BYTE_BITS,d0
+00001AF4  E080                    1052      asr.l   #ONE_BYTE_BITS,d0
+00001AF6  E080                    1053      asr.l   #ONE_BYTE_BITS,d0
+00001AF8  0280 00000001           1054      andi.l  #BIT_MASK_0001,d0
+00001AFE  C0FC 0004               1055      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001B02  2270 0000               1056      move.l  (a0,d0),a1
+00001B06  4E91                    1057      jsr     (a1)
+00001B08                          1058      
+00001B08  2001                    1059      move.l  d1,d0   ;check if right arrow is pressed
+00001B0A  E080                    1060      asr.l   #ONE_BYTE_BITS,d0
+00001B0C  E080                    1061      asr.l   #ONE_BYTE_BITS,d0
+00001B0E  0280 00000002           1062      andi.l  #BIT_MASK_0010,d0
+00001B14  C0FC 0004               1063      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001B18  2270 0000               1064      move.l  (a0,d0),a1
+00001B1C  4E91                    1065      jsr     (a1)
+00001B1E                          1066      
+00001B1E  2001                    1067      move.l  d1,d0   ;check if up arrow is pressed
+00001B20  E080                    1068      asr.l   #ONE_BYTE_BITS,d0
+00001B22  0280 00000003           1069      andi.l  #BIT_MASK_0011,d0
+00001B28  C0FC 0004               1070      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001B2C  2270 0000               1071      move.l  (a0,d0),a1
+00001B30  4E91                    1072      jsr     (a1)
+00001B32                          1073      
+00001B32  2001                    1074      move.l  d1,d0   ;check if down arrow is pressed
+00001B34  0280 00000004           1075      andi.l  #BIT_MASK_0100,d0
+00001B3A  C0FC 0004               1076      mulu.w  #BYTES_OF_A_LONG_WORD,d0
+00001B3E  2270 0000               1077      move.l  (a0,d0),a1
+00001B42  4E91                    1078      jsr     (a1)
+00001B44                          1079      
+00001B44  6000 000C               1080      bra     aroundNoInput
+00001B48                          1081  NoInput:
+00001B48  23FC FFFFFFFF 00001F08  1082      move.l  #$FFFFFFFF,KeyPressedLastTime
+00001B52                          1083  AroundNoInput:
+00001B52  4E75                    1084      rts
+00001B54                          1085  
+00001B54                          1086  *User input control moves left if left arrow is pressed
+00001B54                          1087  PressLeft:
+00001B54  2005                    1088      move.l  d5,d0
+00001B56  6700 0028               1089      beq     NoPress
+00001B5A  5385                    1090      subi.l  #1,d5
+00001B5C  4E75                    1091      rts
+00001B5E                          1092  
+00001B5E                          1093  *User input control moves right if left arrow is pressed
+00001B5E                          1094  PressRight:
+00001B5E  BA7C 0002               1095      cmp.w   #MAX_LOCATION_IN_CONTAINER,d5
+00001B62  6C00 001C               1096      bge     NoPress
+00001B66  5285                    1097      addi.l  #1,d5
+00001B68  4E75                    1098      rts
+00001B6A                          1099  
+00001B6A                          1100  *User input control moves up if left arrow is pressed  
+00001B6A                          1101  PressUp:
+00001B6A  2006                    1102      move.l  d6,d0
+00001B6C  6700 0012               1103      beq     NoPress
+00001B70  5386                    1104      subi.l  #1,d6
+00001B72  4E75                    1105      rts
+00001B74                          1106  
+00001B74                          1107  *User input control moves down if left arrow is pressed   
+00001B74                          1108  PressDown:
+00001B74  BC7C 0002               1109      cmp.w   #MAX_LOCATION_IN_CONTAINER,d6
+00001B78  6C00 0006               1110      bge     NoPress
+00001B7C  5286                    1111      addi.l  #1,d6
+00001B7E  4E75                    1112      rts
+00001B80                          1113      
+00001B80                          1114  NoPress:
+00001B80  4E75                    1115      rts
+00001B82                          1116  
+00001B82                          1117  *Clear screen and update
+00001B82                          1118  UpdateScreen:
+00001B82  7008                    1119      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0 ;used to calculate frame time
+00001B84  4E4F                    1120      TRAP    #15
+00001B86  2039 00001F7C           1121      move.l  StartFrame,d0
+00001B8C  9280                    1122      sub.l   d0,d1
+00001B8E  23C1 00001F80           1123      move.l  d1,FrameTime
+00001B94                          1124      
+00001B94  705E                    1125      move.l  #REPAINT_TRAP,d0
+00001B96  4E4F                    1126      TRAP    #15
+00001B98                          1127      
+00001B98  7008                    1128      move.l  #GET_TIME_FROM_MIDNIGHT_TRAP,d0 ;start time for each loop
+00001B9A  4E4F                    1129      TRAP    #15
+00001B9C  23C1 00001F7C           1130      move.l  d1,StartFrame
+00001BA2                          1131      
+00001BA2  0C39 0000 00001F67      1132      cmp.b   #0,IsDead
+00001BAA  6700 000C               1133      beq     KeepPlaying
+00001BAE                          1134      
+00001BAE  2E7C 10000000           1135      move.l  #$10000000,sp
+00001BB4  6000 F498               1136      bra     WaitUntilStart
+00001BB8                          1137  KeepPlaying:
+00001BB8  103C 000B               1138      move.b  #CLEAR_SCREEN_TRAP,d0
+00001BBC  223C 0000FF00           1139      move.l  #CLEAR_SCREEN,d1
+00001BC2  4E4F                    1140      TRAP    #15
+00001BC4                          1141      
+00001BC4  4E75                    1142      rts
+00001BC6                          1143   
+00001BC6                          1144  **Draw user input control based on coordinates in container
+00001BC6                          1145  DrawUserInputControl:
+00001BC6  48E7 0600               1146      movem.l d5-d6,-(sp)
+00001BCA                          1147  
+00001BCA  4281                    1148      clr.l   d1
+00001BCC  4282                    1149      clr.l   d2
+00001BCE  3239 00001F30           1150      move.w  LeftXContainer,d1
+00001BD4  E881                    1151      asr.l   #FRAC_BITS,d1
+00001BD6  3439 00001F32           1152      move.w  TopYContainer,d2
+00001BDC  E882                    1153      asr.l   #FRAC_BITS,d2
+00001BDE                          1154      
+00001BDE  41F9 00004E30           1155      lea     UserInputBmp,a0
+00001BE4  2F08                    1156      move.l  a0,-(sp)
+00001BE6                          1157      
+00001BE6                          1158      *Calculate output screen x,y position
+00001BE6  7032                    1159      move.l  #SIZE_TILE,d0   ;x = thickness_container/2 + size_tile * d5 + (size_tile - size_user_input_control)/2
+00001BE8  C0C5                    1160      mulu    d5,d0
+00001BEA  D280                    1161      add.l   d0,d1
+00001BEC  0681 0000000A           1162      addi.l  #((SIZE_TILE - SIZE_USER_INPUT_CONTROL)>>1),d1
+00001BF2  7032                    1163      move.l  #SIZE_TILE,d0   ;y = thickness_container/2 + size_tile * d6 + (size_tile - size_user_input_control)/2
+00001BF4  C0C6                    1164      mulu    d6,d0
+00001BF6  D480                    1165      add.l   d0,d2
+00001BF8  0682 0000000A           1166      addi.l  #((SIZE_TILE - SIZE_USER_INPUT_CONTROL)>>1),d2
+00001BFE                          1167      
+00001BFE  23C1 00001F1C           1168      move.l  d1,UserInputX
+00001C04  23C2 00001F20           1169      move.l  d2,UserInputY
+00001C0A                          1170      
+00001C0A  2F3C 00000000           1171      move.l  #0,-(sp)
+00001C10  2F3C 00000000           1172      move.l  #0,-(sp)
+00001C16  2F3C 0000001E           1173      move.l  #SIZE_USER_INPUT_CONTROL,-(sp)
+00001C1C  2F3C 0000001E           1174      move.l  #SIZE_USER_INPUT_CONTROL,-(sp)
+00001C22  2F02                    1175      move.l  d2,-(sp)
+00001C24  2F01                    1176      move.l  d1,-(sp)
+00001C26                          1177      
+00001C26  4EB9 00001E02           1178      jsr     DrawBitmapChunk
+00001C2C  4CDF 0060               1179      movem.l (sp)+,d5-d6
+00001C30  4E75                    1180      rts
+00001C32                          1181     
+00001C32                          1182  *Draw external container
+00001C32                          1183  DrawMainContainer:
+00001C32                          1184      *Set pen color to white
+00001C32  103C 0050               1185      move.b  #PEN_COLOR_TRAP,d0
+00001C36  223C 00FFFFFF           1186      move.l  #WHITE,d1
+00001C3C  4E4F                    1187      TRAP    #15
+00001C3E                          1188      
+00001C3E  223C 000000FF           1189      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS - THICKNESS_MAIN_CONTAINER>>1),d1
+00001C44  243C 0000009B           1190      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS - THICKNESS_MAIN_CONTAINER>>1),d2
+00001C4A  263C 000002E9           1191      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS - THICKNESS_MAIN_CONTAINER>>1 + WIDTH_MAIN_CONTAINER),d3
+00001C50  283C 00000285           1192      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS - THICKNESS_MAIN_CONTAINER>>1 + HEIGHT_MAIN_CONTAINER),d4
+00001C56                          1193      
+00001C56  2F01                    1194      move.l  d1,-(sp)
+00001C58  103C 005D               1195      move.b  #PEN_WIDTH_TRAP,d0
+00001C5C  123C 0014               1196      move.b  #THICKNESS_MAIN_CONTAINER,d1
+00001C60  4E4F                    1197      TRAP    #15
+00001C62  221F                    1198      move.l  (sp)+,d1
+00001C64                          1199      
+00001C64  103C 005A               1200      move.b  #DRAW_RECT_TRAP,d0
+00001C68  4E4F                    1201      TRAP    #15
+00001C6A                          1202      
+00001C6A  2F01                    1203      move.l  d1,-(sp)
+00001C6C  103C 005D               1204      move.b  #PEN_WIDTH_TRAP,d0
+00001C70  7201                    1205      move.l  #1,d1
+00001C72  4E4F                    1206      TRAP    #15
+00001C74  221F                    1207      move.l  (sp)+,d1
+00001C76                          1208      
+00001C76                          1209      *Draw edge line
+00001C76  7014                    1210      move.l  #(THICKNESS_MAIN_CONTAINER>>1 + THICKNESS_CONTAINER),d0
+00001C78  D280                    1211      add.l   d0,d1
+00001C7A  D480                    1212      add.l   d0,d2
+00001C7C  9680                    1213      sub.l   d0,d3
+00001C7E  9880                    1214      sub.l   d0,d4
+00001C80                          1215      
+00001C80  103C 005A               1216      move.b  #DRAW_RECT_TRAP,d0
+00001C84  4E4F                    1217      TRAP    #15
+00001C86                          1218      
+00001C86  4E75                    1219      rts
+00001C88                          1220      
+00001C88                          1221  *Draw inner container
+00001C88                          1222  DrawContainer:
+00001C88                          1223      *Set pen color to white
+00001C88  103C 0050               1224      move.b  #PEN_COLOR_TRAP,d0
+00001C8C  223C 00FFFFFF           1225      move.l  #WHITE,d1
+00001C92  4E4F                    1226      TRAP    #15
+00001C94                          1227      
+00001C94  4281                    1228      clr.l   d1
+00001C96  4282                    1229      clr.l   d2
+00001C98                          1230      
+00001C98  3239 00001F30           1231      move.w  LeftXContainer,d1   ;d1 left x, d3 right x
+00001C9E  E881                    1232      asr.l   #FRAC_BITS,d1
+00001CA0  5B81                    1233      subi.l  #(THICKNESS_CONTAINER>>1),d1
+00001CA2  2601                    1234      move.l  d1,d3
+00001CA4  0683 000000A0           1235      addi.l  #WIDTH_CONTAINER,d3
+00001CAA                          1236      
+00001CAA  3439 00001F32           1237      move.w  TopYContainer,d2    ;d2 left x, d4 right x
+00001CB0  E882                    1238      asr.l   #FRAC_BITS,d2   
+00001CB2  5B82                    1239      subi.l  #(THICKNESS_CONTAINER>>1),d2
+00001CB4  2802                    1240      move.l  d2,d4
+00001CB6  0684 000000A0           1241      addi.l  #HEIGHT_CONTAINER,d4
+00001CBC                          1242      
+00001CBC  2F01                    1243      move.l  d1,-(sp)
+00001CBE  103C 005D               1244      move.b  #PEN_WIDTH_TRAP,d0
+00001CC2  123C 000A               1245      move.b  #THICKNESS_CONTAINER,d1
+00001CC6  4E4F                    1246      TRAP    #15
+00001CC8  221F                    1247      move.l  (sp)+,d1
+00001CCA                          1248      
+00001CCA  103C 005A               1249      move.b  #DRAW_RECT_TRAP,d0
+00001CCE  4E4F                    1250      TRAP    #15
+00001CD0                          1251      
+00001CD0  2F01                    1252      move.l  d1,-(sp)
+00001CD2  103C 005D               1253      move.b  #PEN_WIDTH_TRAP,d0
+00001CD6  7201                    1254      move.l  #1,d1
+00001CD8  4E4F                    1255      TRAP    #15
+00001CDA  221F                    1256      move.l  (sp)+,d1
+00001CDC                          1257  
+00001CDC  0681 00000037           1258      addi.l  #(THICKNESS_CONTAINER>>1 + SIZE_TILE),d1    ;top left line
+00001CE2  0483 00000037           1259      subi.l  #(THICKNESS_CONTAINER>>1 + SIZE_TILE),d3   
+00001CE8  0483 00000032           1260      subi.l  #SIZE_TILE,d3                              
+00001CEE                          1261      
+00001CEE  103C 0054               1262      move.b  #DRAW_LINE_TRAP,d0
+00001CF2  4E4F                    1263      TRAP    #15
+00001CF4                          1264      
+00001CF4  0681 00000032           1265      addi.l  #SIZE_TILE,d1   ;bottom left line 
+00001CFA  0683 00000032           1266      addi.l  #SIZE_TILE,d3
+00001D00                          1267      
+00001D00  103C 0054               1268      move.b  #DRAW_LINE_TRAP,d0
+00001D04  4E4F                    1269      TRAP    #15
+00001D06                          1270      
+00001D06  0481 00000032           1271      subi.l  #SIZE_TILE,d1   ;top right line
+00001D0C  0481 00000032           1272      subi.l  #SIZE_TILE,d1
+00001D12  0683 00000032           1273      addi.l  #SIZE_TILE,d3
+00001D18  0682 00000037           1274      addi.l  #(THICKNESS_CONTAINER>>1 + SIZE_TILE),d2
+00001D1E  0484 00000037           1275      subi.l  #(THICKNESS_CONTAINER>>1 + SIZE_TILE),d4
+00001D24  0484 00000032           1276      subi.l  #SIZE_TILE,d4
+00001D2A                          1277      
+00001D2A  103C 0054               1278      move.b  #DRAW_LINE_TRAP,d0
+00001D2E  4E4F                    1279      TRAP    #15
+00001D30                          1280      
+00001D30  0682 00000032           1281      addi.l  #SIZE_TILE,d2   ;bottom right line
+00001D36  0684 00000032           1282      addi.l  #SIZE_TILE,d4
+00001D3C                          1283      
+00001D3C  103C 0054               1284      move.b  #DRAW_LINE_TRAP,d0
+00001D40  4E4F                    1285      TRAP    #15
+00001D42                          1286  
+00001D42  4E75                    1287      rts
+00001D44                          1288  
+00001D44                          1289  *Initialize spears data
+00001D44                          1290  InitSpears:
+00001D44  41F9 00001F84           1291      lea     SpearsIndexTable,a0
+00001D4A  43F9 0000205C           1292      lea     SpearsData,a1
+00001D50  223C 00000113           1293      move.l  #(LEFT_X_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d1
+00001D56  243C 000000AF           1294      move.l  #(TOP_Y_MAIN_CONTAINER>>FRAC_BITS + THICKNESS_CONTAINER),d2
+00001D5C                          1295  InitSpearLoop:
+00001D5C  3368 0000 0000          1296      move.w  STATUS_SPEAR_VAR(a0),STATUS_SPEAR_VAR(a1)
+00001D62  3028 0002               1297      move.w  OUTPUT_LEFT_X_SPEAR_VAR(a0),d0  ;x = xIndex * tile size + gap spear side/gap spearhead
+00001D66  C0FC 0032               1298      mulu.w  #SIZE_TILE,d0
+00001D6A                          1299      
+00001D6A  3628 0000               1300      move.w  STATUS_SPEAR_VAR(a0),d3 ;xxx1
+00001D6E  0243 0001               1301      andi.w  #BIT_MASK_0001,d3       ;0001
+00001D72  C6FC 000A               1302      mulu.w  #GAP_BETWEEN_SPEAR_SIDE_AND_TILE,d3
+00001D76                          1303      
+00001D76  3828 0000               1304      move.w  STATUS_SPEAR_VAR(a0),d4 ;x1xx
+00001D7A  0244 0004               1305      andi.w  #BIT_MASK_0100,d4       ;0100
+00001D7E  E444                    1306      asr.w   #2,d4                   ;0001
+00001D80  C8FC 0014               1307      mulu.w  #GAP_BETWEEN_SPEARHEAD_AND_TILE,d4
+00001D84                          1308      
+00001D84  D043                    1309      add.w   d3,d0
+00001D86  D044                    1310      add.w   d4,d0
+00001D88  D041                    1311      add.w   d1,d0
+00001D8A  E940                    1312      asl.w   #FRAC_BITS,d0           ;fixed point math
+00001D8C  3340 0002               1313      move.w  d0,OUTPUT_LEFT_X_SPEAR_VAR(a1)
+00001D90                          1314      
+00001D90  3028 0004               1315      move.w  OUTPUT_TOP_Y_SPEAR_VAR(a0),d0   ;y = yIndex * tile size + gap between spear and tile
+00001D94  C0FC 0032               1316      mulu.w  #SIZE_TILE,d0
+00001D98                          1317      
+00001D98  3628 0000               1318      move.w  STATUS_SPEAR_VAR(a0),d3 ;xx1x
+00001D9C  0243 0002               1319      andi.w  #BIT_MASK_0010,d3       ;0010
+00001DA0  E243                    1320      asr.w   #1,d3                   ;0001
+00001DA2  C6FC 000A               1321      mulu.w  #GAP_BETWEEN_SPEAR_SIDE_AND_TILE,d3
+00001DA6                          1322      
+00001DA6  3828 0000               1323      move.w  STATUS_SPEAR_VAR(a0),d4 ;1xxx
+00001DAA  0244 0008               1324      andi.w  #BIT_MASK_1000,d4       ;1000
+00001DAE  E644                    1325      asr.w   #3,d4                   ;0001
+00001DB0  C8FC 0014               1326      mulu.w  #GAP_BETWEEN_SPEARHEAD_AND_TILE,d4
+00001DB4                          1327      
+00001DB4  D043                    1328      add.w   d3,d0
+00001DB6  D044                    1329      add.w   d4,d0
+00001DB8  D042                    1330      add.w   d2,d0
+00001DBA  E940                    1331      asl.w   #FRAC_BITS,d0           ;fixed point math
+00001DBC  3340 0004               1332      move.w  d0,OUTPUT_TOP_Y_SPEAR_VAR(a1)
+00001DC0                          1333      
+00001DC0  4280                    1334      clr.l   d0
+00001DC2  4283                    1335      clr.l   d3
+00001DC4  4284                    1336      clr.l   d4
+00001DC6                          1337      
+00001DC6  5C88                    1338      add.l   #DATA_SIZE_SPEARS_ARRAY,a0
+00001DC8  5C89                    1339      add.l   #DATA_SIZE_SPEARS_ARRAY,a1
+00001DCA  B1FC 0000205C           1340      cmp.l   #SpearsIndexEnd,a0
+00001DD0  6D8A                    1341      blt     InitSpearLoop
+00001DD2                          1342      
+00001DD2  4E75                    1343      rts
+00001DD4                          1344      
+00001DD4                          1345  *Get random number
+00001DD4                          1346  GetRandomByteIntoD7:
+00001DD4  2F00                    1347      move.l  d0,-(sp)
+00001DD6  2F01                    1348      move.l  d1,-(sp)
+00001DD8  2F02                    1349      move.l  d2,-(sp)
+00001DDA                          1350      
+00001DDA  2039 00001F04           1351      move.l  RANDOMVAL,d0
+00001DE0  72AF                    1352      moveq   #$AF-$100,d1
+00001DE2  7412                    1353      moveq   #18,d2
+00001DE4                          1354  Ninc0:
+00001DE4  D080                    1355      add.l   d0,d0
+00001DE6  6400 0004               1356      bcc     Ninc1
+00001DEA  B300                    1357      eor.b   d1,d0
+00001DEC                          1358  Ninc1:
+00001DEC  51CA FFF6               1359      dbf     d2,Ninc0
+00001DF0                          1360      
+00001DF0  4287                    1361      clr.l   d7
+00001DF2  23C0 00001F04           1362      move.l  d0,RANDOMVAL
+00001DF8  1E00                    1363      move.b  d0,d7
+00001DFA                          1364      
+00001DFA  241F                    1365      move.l (sp)+,d2
+00001DFC  221F                    1366      move.l (sp)+,d1
+00001DFE  201F                    1367      move.l (sp)+,d0
+00001E00                          1368          
+00001E00  4E75                    1369      rts  
+00001E02                          1370  
+00001E02                          1371  REG_INPUT                           REG     D1-D6/A0
+00001E02                          1372  OUTPUT_SCREEN_REG                   REG     D1-D2
+00001E02                          1373  
+00001E02  =0000424D               1374  BMP_SIGNATURE                       EQU     'BM'
+00001E02  =0000000A               1375  OFFSET_TO_PIXELARRAY_OFFSET         EQU     10
+00001E02  =00000012               1376  IMAGE_WIDTH_OFFSET                  EQU     18
+00001E02  =00000016               1377  IMAGE_HEIGHT_OFFSET                 EQU     22
+00001E02  =0000001C               1378  BITS_PER_PIXEL_OFFSET               EQU     28
+00001E02                          1379  
+00001E02  =00000008               1380  BITS_OF_TWO_BYTES                   EQU     8
+00001E02  =00000003               1381  BITS_0011                           EQU     3
+00001E02  =00000018               1382  DEFAULT_BIT_DEPTH                   EQU     24
+00001E02  =00000003               1383  DEFAULT_BIT_DEPTH_BYTES             EQU     3
+00001E02                          1384  
+00001E02                          1385  DrawBitmapChunk:
+00001E02  23DF 00001F0C           1386      move.l  (sp)+,ReturnAddress ;save return address
+00001E08  4CDF 017E               1387      movem.l (sp)+,REG_INPUT
+00001E0C                          1388      
+00001E0C                          1389      *Prepare data for drawing
+00001E0C  D484                    1390      add.l   d4,d2   ;d2 output screen y + chunk height
+00001E0E  5382                    1391      sub.l   #1,d2   ;draw from bottom
+00001E10                          1392      
+00001E10  48E7 6000               1393      movem.l OUTPUT_SCREEN_REG,-(sp) ;save output screen location x,y
+00001E14  6100 0058               1394      bsr     InputErrorCheck ;d1,d2 -> image width,height
+00001E18  6100 00B4               1395      bsr     PixelArraySet
+00001E1C                          1396      
+00001E1C                          1397      *d5 (image width - chunk width) * 3 + padding
+00001E1C  2003                    1398      move.l  d3,d0   
+00001E1E  9280                    1399      sub.l   d0,d1
+00001E20  2001                    1400      move.l  d1,d0
+00001E22  D081                    1401      add.l   d1,d0
+00001E24  D081                    1402      add.l   d1,d0
+00001E26  D087                    1403      add.l   d7,d0
+00001E28  2A00                    1404      move.l  d0,d5
+00001E2A                          1405      
+00001E2A  4CDF 0006               1406      movem.l (sp)+,OUTPUT_SCREEN_REG
+00001E2E  2C01                    1407      move.l  d1,d6
+00001E30  D681                    1408      add.l   d1,d3   ;d3 output start x + chunk width
+00001E32                          1409      
+00001E32                          1410  *------------------------
+00001E32                          1411  *d1 pen color, output screen x position
+00001E32                          1412  *d2 output screen start y position
+00001E32                          1413  *d3 output start x + chunk width
+00001E32                          1414  *d4 chunk height
+00001E32                          1415  *d5 (image width - chunk width) * 3 + padding
+00001E32                          1416  *d6 output start x position
+00001E32                          1417  *------------------------
+00001E32                          1418  ContinueRow:
+00001E32  2E01                    1419      move.l  d1,d7    ;save x position
+00001E34                          1420      
+00001E34                          1421      *set pixel color
+00001E34  4281                    1422      clr.l   d1
+00001E36  1218                    1423      move.b  (a0)+,d1    ;$000000BB
+00001E38  E189                    1424      lsl.l   #BITS_OF_TWO_BYTES,d1 
+00001E3A  1218                    1425      move.b  (a0)+,d1    ;$0000BBGG
+00001E3C  E189                    1426      lsl.l   #BITS_OF_TWO_BYTES,d1 
+00001E3E  1218                    1427      move.b  (a0)+,d1    ;$00BBGGRR
+00001E40                          1428      
+00001E40  B2BC 00000000           1429      cmp.l   #BLACK,d1   ;Skip drawing black pixel
+00001E46  6700 000C               1430      beq     NoDraw      ;Black counts as transparent background
+00001E4A  7050                    1431      move.l  #PEN_COLOR_TRAP,d0
+00001E4C  4E4F                    1432      trap    #15
+00001E4E                          1433      
+00001E4E                          1434      *draw pixel
+00001E4E  2207                    1435      move.l  d7,d1   ;restore x position
+00001E50  7052                    1436      move.l  #DRAW_PIXEL_TRAP,d0
+00001E52  4E4F                    1437      trap    #15
+00001E54                          1438  NoDraw:
+00001E54  2207                    1439      move.l  d7,d1   ;restore x position
+00001E56                          1440      *continue to next point
+00001E56  5281                    1441      addi.l  #1,d1   ;move onto next column
+00001E58  B681                    1442      cmp.l   d1,d3   ;if it doesn not exceed chunk width
+00001E5A  6ED6                    1443      bgt     ContinueRow
+00001E5C                          1444      
+00001E5C  D1C5                    1445      add.l   d5,a0   ;fill gap between current index to index of next row
+00001E5E                          1446      
+00001E5E  2206                    1447      move.l  d6,d1   ;reset x position to start position
+00001E60  5382                    1448      subi.l  #1,d2   ;move onto next row
+00001E62  5384                    1449      subi.l  #1,d4
+00001E64  66CC                    1450      bne     ContinueRow
+00001E66                          1451      
+00001E66                          1452  Finish:
+00001E66  2F39 00001F0C           1453      move.l  ReturnAddress,-(sp)
+00001E6C  4E75                    1454      rts
+00001E6E                          1455  
+00001E6E                          1456  *Return error if input is wrong
+00001E6E                          1457  InputErrorCheck:
+00001E6E  3010                    1458      move.w  (a0),d0
+00001E70  B0BC 0000424D           1459      cmp.l   #BMP_SIGNATURE,d0 ;finish if it is not a bmp file
+00001E76  66EE                    1460      bne     Finish
+00001E78                          1461      
+00001E78  3028 001C               1462      move.w  BITS_PER_PIXEL_OFFSET(a0),d0
+00001E7C  E058                    1463      ror.w   #BITS_OF_TWO_BYTES,d0 ;change to Big Endian format
+00001E7E  B0BC 00000018           1464      cmp.l   #DEFAULT_BIT_DEPTH,d0   ;finish if bit depth is not 24 bits
+00001E84  66E0                    1465      bne     Finish
+00001E86                          1466      
+00001E86  0C81 00000000           1467      cmpi.l  #0,d1   ;finish if top left chunk x position <= 0
+00001E8C  6DD8                    1468      blt     finish
+00001E8E                          1469      
+00001E8E  0C82 00000000           1470      cmpi.l  #0,d2   ;finish if top left chunk y position <= 0
+00001E94  6DD0                    1471      blt     finish
+00001E96                          1472      
+00001E96  2028 0012               1473      move.l  IMAGE_WIDTH_OFFSET(a0),d0
+00001E9A  67CA                    1474      beq     Finish  ;finish if width is 0
+00001E9C  6100 005E               1475      bsr     ReverseLongWord ;change to Big Endian format
+00001EA0  2200                    1476      move.l  d0,d1
+00001EA2                          1477      
+00001EA2  2028 0016               1478      move.l  IMAGE_HEIGHT_OFFSET(a0),d0
+00001EA6  67BE                    1479      beq     Finish  ;finish if height is 0
+00001EA8  6100 0052               1480      bsr     ReverseLongWord
+00001EAC  2400                    1481      move.l  d0,d2
+00001EAE                          1482      
+00001EAE  2003                    1483      move.l  d3,d0
+00001EB0  D085                    1484      add.l   d5,d0
+00001EB2  B081                    1485      cmp.l   d1,d0   ;finish if chunk is oversized   
+00001EB4  6EB0                    1486      bgt     Finish  
+00001EB6                          1487      
+00001EB6  2004                    1488      move.l  d4,d0
+00001EB8  D086                    1489      add.l   d6,d0
+00001EBA  B082                    1490      cmp.l   d2,d0   ;finish if chunk is oversized
+00001EBC  6EA8                    1491      bgt     Finish
+00001EBE                          1492      
+00001EBE  4E75                    1493      rts
+00001EC0                          1494      
+00001EC0                          1495  ReadBmpError:
+00001EC0  43F9 00001F34           1496      lea     ErrorMessage,a1
+00001EC6  700E                    1497      move.l  #DISPLAY_STRING_TRAP,d0
+00001EC8  4E4F                    1498      TRAP    #15
+00001ECA                          1499      
+00001ECA  FFFF FFFF               1500      SIMHALT
+00001ECE                          1501  
+00001ECE                          1502  *Move a0 to the first pixel of chunk data
+00001ECE                          1503  PixelArraySet:
+00001ECE  2E01                    1504      move.l  d1,d7
+00001ED0  0287 000000FF           1505      andi.l  #$000000FF,d7
+00001ED6  0207 0003               1506      andi.b  #BITS_0011,d7 ;get padding
+00001EDA                          1507  
+00001EDA  2002                    1508      move.l  d2,d0   ;image height - chunk start y - chunk height
+00001EDC  9086                    1509      sub.l   d6,d0
+00001EDE  9084                    1510      sub.l   d4,d0
+00001EE0                          1511      
+00001EE0  2C00                    1512      move.l  d0,d6   ;(image height - chunk start y - chunk height) * padding
+00001EE2  CCC7                    1513      mulu.w  d7,d6
+00001EE4                          1514      
+00001EE4  C0C1                    1515      mulu.w  d1,d0   ;3 * ((image height - chunk start y - chunk height) * image width + chunk start x)
+00001EE6  D085                    1516      add.l   d5,d0
+00001EE8  C0FC 0003               1517      mulu.w  #DEFAULT_BIT_DEPTH_BYTES,d0
+00001EEC                          1518      
+00001EEC  DC80                    1519      add.l   d0,d6
+00001EEE                          1520      
+00001EEE  2028 000A               1521      move.l  OFFSET_TO_PIXELARRAY_OFFSET(a0),d0
+00001EF2  6100 0008               1522      bsr     ReverseLongWord
+00001EF6  D086                    1523      add.l   d6,d0
+00001EF8                          1524      
+00001EF8  D1C0                    1525      add.l   d0,a0   ;move to start pointer of pixel data
+00001EFA                          1526      
+00001EFA  4E75                    1527      rts
+00001EFC                          1528  
+00001EFC                          1529  ReverseLongWord:
+00001EFC  E058                    1530      ror.w   #BITS_OF_TWO_BYTES,d0 ;4 3 1 2
+00001EFE  4840                    1531      swap.w  d0                   ;1 2 4 3
+00001F00  E058                    1532      ror.w   #BITS_OF_TWO_BYTES,d0 ;1 2 3 4
+00001F02                          1533      
+00001F02  4E75                    1534      rts
+00001F04                          1535      
+00001F04                          1536  *********************
+00001F04                          1537  RandomVal           ds.l    1
+00001F08                          1538  KeyPressedLastTime  ds.l    1
+00001F0C                          1539  ReturnAddress       ds.l    1
+00001F10= 00000000                1540  SpearSpeed          dc.l    0
+00001F14= 00000000                1541  ContainerSpeed      dc.l    0
+00001F18                          1542  Container_Speed     ds.l    1
+00001F1C                          1543  UserInputX          ds.l    1
+00001F20                          1544  UserInputY          ds.l    1                         
+00001F24                          1545  GameStartTime       ds.l    1
+00001F28= 00FFFFFF                1546  ContainerColor      dc.l    WHITE
+00001F2C= 00111111                1547  ColorChangeSpeed    dc.l    $111111
+00001F30= 1A90                    1548  LeftXContainer      dc.w    425<<FRAC_BITS
+00001F32= 1450                    1549  TopYContainer       dc.w    325<<FRAC_BITS
+00001F34= 42 6D 70 20 46 69 ...   1550  ErrorMessage        dc.b    'Bmp File Input Error',0
+00001F49= 50 72 65 73 73 20 ...   1551  StartMessage        dc.b    'Press Any Key To Suffer...',0
+00001F64= 02                      1552  SpearSpawnChance    dc.b    2 
+00001F65= 00                      1553  IsSpearAttacking    dc.b    0
+00001F66= 00                      1554  FinishSpearAttack   dc.b    0
+00001F67= 00                      1555  IsDead              dc.b    0
+00001F68= 01                      1556  NeedWarning         dc.b    1
+00001F69= 00                      1557  IsWarning           dc.b    0
+00001F6A                          1558  WarningSequence     ds.b    10
+00001F74= 00                      1559  WarningIndex        dc.b    0
+00001F75= 00                      1560  IsContainerMoving   dc.b    0
+00001F76= 00                      1561  FinishContainerMove dc.b    0
+00001F77= 00                      1562  IsResting           dc.b    0
+00001F78                          1563  StartRestTime       ds.l    1
+00001F7C= 00000000                1564  StartFrame          dc.l    0
+00001F80= 00000000                1565  FrameTime           dc.l    0
+00001F84                          1566  
+00001F84                          1567  *Every three words represent a spear data: direction, xIndex,yIndex
+00001F84= 0001 0000 0000 0...     1568  SpearsIndexTable    dc.w    TOP_DIRECTION,0,0,TOP_DIRECTION,1,0,TOP_DIRECTION,2,0,TOP_DIRECTION,3,0,TOP_DIRECTION,4,0,TOP_DIRECTION,5,0,TOP_DIRECTION,6,0,TOP_DIRECTION,7,0,TOP_DIRECTION,8,0
+00001FBA= 0006 0008 0000 0...     1569                      dc.w    RIGHT_DIRECTION,8,0,RIGHT_DIRECTION,8,1,RIGHT_DIRECTION,8,2,RIGHT_DIRECTION,8,3,RIGHT_DIRECTION,8,4,RIGHT_DIRECTION,8,5,RIGHT_DIRECTION,8,6,RIGHT_DIRECTION,8,7,RIGHT_DIRECTION,8,8
+00001FF0= 0009 0000 0008 0...     1570                      dc.w    BOTTOM_DIRECTION,0,8,BOTTOM_DIRECTION,1,8,BOTTOM_DIRECTION,2,8,BOTTOM_DIRECTION,3,8,BOTTOM_DIRECTION,4,8,BOTTOM_DIRECTION,5,8,BOTTOM_DIRECTION,6,8,BOTTOM_DIRECTION,7,8,BOTTOM_DIRECTION,8,8
+00002026= 0002 0000 0000 0...     1571                      dc.w    LEFT_DIRECTION,0,0,LEFT_DIRECTION,0,1,LEFT_DIRECTION,0,2,LEFT_DIRECTION,0,3,LEFT_DIRECTION,0,4,LEFT_DIRECTION,0,5,LEFT_DIRECTION,0,6,LEFT_DIRECTION,0,7,LEFT_DIRECTION,0,8
+0000205C                          1572  SpearsIndexEnd
+0000205C                          1573  SpearsData          ds.w    108
+00002134                          1574  SpearsDataEnd     
+00002134                          1575  WarningFunctionTable:
+00002134= 0000145C 00001428 ...   1576                      dc.l    DrawWholeFrame,DrawTopFrame,DrawLeftFrame,DrawWholeFrame,DrawWholeFrame,DrawWholeFrame,DrawRightFrame,DrawWholeFrame,DrawWholeFrame,DrawBottomFrame
+0000215C                          1577  SpearCheckFunctionTable:
+0000215C= 0000185A 0000186C ...   1578                      dc.l    StartSpearAttack,NoSpearAttack,NoSpearAttack,StartSpearAttack,StartSpearAttack,StartSpearAttack,NoSpearAttack,StartSpearAttack,StartSpearAttack,NoSpearAttack
+00002184                          1579  SpearsAttackFunctionTable:
+00002184= 00000000 0000186E ...   1580                      dc.l    0,UpdateTopSpears,UpdateLeftSpears,0,0,0,UpdateRightSpears,0,0,UpdateBottomSpears
+000021AC                          1581  ContainerCheckFunctionTable:
+000021AC= 000011E4 000011DC ...   1582                      dc.l    NoContainerMove,StartContainerMove,StartContainerMove,NoContainerMove,NoContainerMove,NoContainerMove,StartContainerMove,NoContainerMove,NoContainerMove,StartContainerMove
+000021D4                          1583  ContainerMoveFunctionTable:
+000021D4= 00000000 0000125A ...   1584                      dc.l    0,UpdateContainerUpMove,UpdateContainerLeftMove,0,0,0,UpdateContainerRightMove,0,0,UpdateContainerDownMove
+000021FC                          1585  KeyPressFunctionTable:
+000021FC= 00001B80 00001B54 ...   1586                      dc.l    NoPress,PressLeft,PressRight,PressUp,PressDown             
+00002210                          1587  
+00002210= 00                      1588  Score               dc.b    00
+00002211= 7E 30 6D 79 33 5B ...   1589  SevenSegLEDArray    dc.b    $7E,$30,$6D,$79,$33,$5B,$5F,$70,$7F,$7B  
+0000221B= 00 00 01 00             1590  SevenSegIndexArray  dc.b    0,0,1,0 ;a
+0000221F= 01 00 01 01             1591                      dc.b    1,0,1,1 ;b
+00002223= 01 01 01 02             1592                      dc.b    1,1,1,2 ;c
+00002227= 01 02 00 02             1593                      dc.b    1,2,0,2 ;d
+0000222B= 00 02 00 01             1594                      dc.b    0,2,0,1 ;e
+0000222F= 00 01 00 00             1595                      dc.b    0,1,0,0 ;f
+00002233= 00 01 01 01             1596                      dc.b    0,1,1,1 ;g
+00002237                          1597                      
+00002237                          1598  Gap                 ds.b    1  
+00002238                          1599  TopSpearBmp         INCBIN  "SpearTop.bmp"
+00002D36                          1600  RightSpearBmp       INCBIN  "SpearRight.bmp"
+00003834                          1601  LeftSpearBmp        INCBIN  "SpearLeft.bmp"
+00004332                          1602  BottomSpearBmp      INCBIN  "SpearBottom.bmp"
+00004E30                          1603  UserInputBmp        INCBIN  "UserInput.bmp"
+0000592E                          1604  TopSpearDBmp        INCBIN  "SpearTop-D.bmp"
+0000642C                          1605  RightSpearDBmp      INCBIN  "SpearRight-D.bmp"
+00006F2A                          1606  LeftSpearDBmp       INCBIN  "SpearLeft-D.bmp"
+00007A28                          1607  BottomSpearDBmp     INCBIN  "SpearBottom-D.bmp"
+00008526= 53 68 6F 6F 74 2E ...   1608  ShootSound          dc.b    'Shoot.wav',0
+00008530                          1609  
+00008530                          1610      END    START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ACCELERATION_SPEED  C
+AROUNDNOINPUT       1B52
+BACKTOGAMELOOP      1858
+BITS_0011           3
+BITS_OF_TWO_BYTES   8
+BITS_PER_PIXEL_OFFSET  1C
+BIT_MASK_0001       1
+BIT_MASK_0010       2
+BIT_MASK_0011       3
+BIT_MASK_0100       4
+BIT_MASK_01000000   40
+BIT_MASK_1000       8
+BLACK               0
+BLUE                FF0000
+BMP_SIGNATURE       424D
+BOTTOMSPEARBMP      4332
+BOTTOMSPEARDBMP     7A28
+BOTTOMSPEARNOTTARGETING  19AC
+BOTTOM_DIRECTION    9
+BYTES_OF_A_LONG_WORD  4
+CHECKIFEXCEEDMAXIMUM  1376
+CHOOSERANDOMSPEAR   1A74
+CLEAR_SCREEN        FF00
+CLEAR_SCREEN_TRAP   B
+COLLISIONDETECT     15E6
+COLLISIONLOOP       15F8
+COLORCHANGESPEED    1F2C
+CONTAINERCHANGECOLOR  133A
+CONTAINERCHECKFUNCTIONTABLE  21AC
+CONTAINERCOLOR      1F28
+CONTAINERMOVEFUNCTIONTABLE  21D4
+CONTAINERSPEED      1F14
+CONTAINER_MOVE_SPEED  12C
+CONTAINER_SPEED     1F18
+CONTINUEROW         1E32
+DATA_SIZE_SPEARS_ARRAY  6
+DEFAULT_BIT_DEPTH   18
+DEFAULT_BIT_DEPTH_BYTES  3
+DETECTCOLUMNHIT     1668
+DETECTROWHIT        1622
+DISPLAY_STRING_TRAP  E
+DOUBLE_BUFFER       11
+DOWN_KEY            28
+DRAWBITMAPCHUNK     1E02
+DRAWBOTTOMFRAME     1442
+DRAWCONTAINER       1C88
+DRAWLEFTFRAME       13F4
+DRAWMAINCONTAINER   1C32
+DRAWPARTOFFRAME     1394
+DRAWRIGHTFRAME      140E
+DRAWSEVENSEGLED     1502
+DRAWSPEAR           1798
+DRAWTOPFRAME        1428
+DRAWUSERINPUTCONTROL  1BC6
+DRAWWHOLEFRAME      145C
+DRAW_FILL_ELLIPSE   58
+DRAW_FILL_RECT_TRAP  57
+DRAW_LINE_TRAP      54
+DRAW_MODE_TRAP      5C
+DRAW_PIXEL_TRAP     52
+DRAW_RECT_TRAP      5A
+END_X_7SEG_VAR      2
+END_Y_7SEG_VAR      3
+ERRORMESSAGE        1F34
+EVERY_X_WAVES       5
+FILL_COLOR_TRAP     51
+FINISH              1E66
+FINISHBOTTOMSPEARATTACK  19D4
+FINISHCONTAINERMOVE  1F76
+FINISHLEFTSPEARATTACK  1A52
+FINISHRIGHTSPEARATTACK  1956
+FINISHSCORE         1500
+FINISHSPEARATTACK   1F66
+FINISHTOPSPEARATTACK  18D8
+FINISHUPDATINGCONTAINER  11C8
+FRAC_BITS           4
+FRAMETIME           1F80
+GAMELOOP            1064
+GAMESTARTTIME       1F24
+GAP                 2237
+GAP_BETWEEN_SPEARHEAD_AND_TILE  14
+GAP_BETWEEN_SPEAR_SIDE_AND_TILE  A
+GETRANDOMBYTEINTOD7  1DD4
+GET_TIME_FROM_MIDNIGHT_TRAP  8
+GROUP_SIZE_SPEARS_ARRAY  12
+HEIGHT_CONTAINER    A0
+HEIGHT_MAIN_CONTAINER  1EA
+HITFROMBOTTOM       1694
+HITFROMRIGHT        164E
+IMAGE_HEIGHT_OFFSET  16
+IMAGE_WIDTH_OFFSET  12
+INITGAMEDATA        154C
+INITSPEARLOOP       1D5C
+INITSPEARS          1D44
+INPUTERRORCHECK     1E6E
+ISATTACKING_BIT_SPEAR_VAR  9
+ISBOTTOMSPEARTARGETINGPLAYER  19A6
+ISCONTAINERMOVING   1F75
+ISDEAD              1F67
+ISLEFTSPEARTARGETINGPLAYER  1A24
+ISRESTING           1F77
+ISRIGHTSPEARTARGETINGPLAYER  1928
+ISSPAWNED_BIT_SPEAR_VAR  8
+ISSPEARATTACKING    1F65
+ISTOPSPEARTARGETINGPLAYER  18AA
+ISWARNING           1F69
+KEEPPLAYING         1BB8
+KEYBOARDLISTENER    1AB8
+KEYBOARD_INPUT_READ_TRAP  5
+KEYBOARD_INPUT_TRAP  13
+KEYPRESSEDLASTTIME  1F08
+KEYPRESSFUNCTIONTABLE  21FC
+LEFTSPEARBMP        3834
+LEFTSPEARDBMP       6F2A
+LEFTSPEARNOTTARGETING  1A2A
+LEFTXCONTAINER      1F30
+LEFT_DIRECTION      2
+LEFT_KEY            25
+LEFT_X_7SEGMENT_IN_ONES  3B6
+LEFT_X_7SEGMENT_IN_TENS  384
+LEFT_X_CONTAINER    1A90
+LEFT_X_MAIN_CONTAINER  1090
+LOSEGAME            16AE
+MAX_LOCATION_IN_CONTAINER  2
+MAX_SPEAR_SPEED     64
+NEEDWARNING         1F68
+NEXTCOLLISIONDETECT  161A
+NEXTSEGMENT         14FC
+NEXTSPEAR           17D0
+NINC0               1DE4
+NINC1               1DEC
+NOCOLUMNHIT         16AC
+NOCONTAINERMOVE     11E4
+NODRAW              1E54
+NOINPUT             1B48
+NOLIMITSPEED        175E
+NOPRESS             1B80
+NOREST              10D6
+NOROWHIT            1666
+NOSETUPATTACK       170E
+NOSETUPCONTAINERMOVE  1124
+NOSPAWN             1AAC
+NOSPEARATTACK       186C
+NOTOUCHBOTTOM       12CE
+NOTTURNON           14FA
+NOWARNING           13F2
+NUMBER_SPEARS       C
+NUMBER_SPEARS_ON_EACH_WALL  9
+OFFSET_TO_PIXELARRAY_OFFSET  A
+ONE_BYTE_BITS       8
+OUTPUT_HEIGHT       320
+OUTPUT_LEFT_X_SPEAR_VAR  2
+OUTPUT_RESOLUTION_TRAP  21
+OUTPUT_SCREEN_REG   6
+OUTPUT_TOP_Y_SPEAR_VAR  4
+OUTPUT_WIDTH        3E8
+PEN_COLOR_TRAP      50
+PEN_WIDTH_7SEGMENT  5
+PEN_WIDTH_TRAP      5D
+PIXELARRAYSET       1ECE
+PLAY_SOUND_TRAP     49
+PRESSDOWN           1B74
+PRESSLEFT           1B54
+PRESSRIGHT          1B5E
+PRESSUP             1B6A
+PURPLE              800080
+PUTCONTAINERBACKTOCENTER  11CA
+RANDOMVAL           1F04
+READBMPERROR        1EC0
+REG_INPUT           17E
+REPAINT_TRAP        5E
+RESTBETWEENATTACK   10AC
+REST_TIME           50
+RETURNADDRESS       1F0C
+REVERSELONGWORD     1EFC
+RIGHTSPEARBMP       2D36
+RIGHTSPEARDBMP      642C
+RIGHTSPEARNOTTARGETING  192E
+RIGHT_DIRECTION     6
+RIGHT_KEY           27
+SCORE               2210
+SETUP               1000
+SEVENSEGINDEXARRAY  221B
+SEVENSEGLEDARRAY    2211
+SEVENSEGLEDLOOP     14E8
+SHOOTSOUND          8526
+SIZE_7SEGMENT       1E
+SIZE_TILE           32
+SIZE_USER_INPUT_CONTROL  1E
+SPAWNSPEARS         1A68
+SPEARCHECKFUNCTIONTABLE  215C
+SPEARLOOP           1774
+SPEARNOCHANGE       1A66
+SPEARSATTACKFUNCTIONTABLE  2184
+SPEARSDATA          205C
+SPEARSDATAEND       2134
+SPEARSINDEXEND      205C
+SPEARSINDEXTABLE    1F84
+SPEARSPAWNCHANCE    1F64
+SPEARSPEED          1F10
+SPEARSPEEDLIMIT     1764
+SPEAR_IMAGE_SIZE    1E
+START               1000
+STARTCONTAINERMOVE  11DC
+STARTFRAME          1F7C
+STARTMESSAGE        1F49
+STARTRESTTIME       1F78
+STARTSPEARATTACK    185A
+START_X_7SEG_VAR    0
+START_Y_7SEG_VAR    1
+STATUS_SPEAR_VAR    0
+THICKNESS_CONTAINER  A
+THICKNESS_MAIN_CONTAINER  14
+TOPSPEARBMP         2238
+TOPSPEARDBMP        592E
+TOPSPEARNOTTARGETING  18B0
+TOPYCONTAINER       1F32
+TOP_DIRECTION       1
+TOP_Y_7SEGMENT      14
+TOP_Y_CONTAINER     1450
+TOP_Y_MAIN_CONTAINER  A50
+UPDATEBOTTOMSPEARS  196A
+UPDATECONTAINER     10D8
+UPDATECONTAINERDOWNMOVE  1294
+UPDATECONTAINERLEFTMOVE  11E6
+UPDATECONTAINERRIGHTMOVE  1220
+UPDATECONTAINERUPMOVE  125A
+UPDATELEFTSPEARS    19E8
+UPDATERIGHTSPEARS   18EC
+UPDATESCORE         147C
+UPDATESCREEN        1B82
+UPDATESPEARS        16C2
+UPDATETOPSPEARS     186E
+UPDATEWARNINGSYSTEM  12D0
+UP_KEY              26
+USERINPUTBMP        4E30
+USERINPUTX          1F1C
+USERINPUTY          1F20
+WAITUNTILSTART      104E
+WARNINGFUNCTIONTABLE  2134
+WARNINGINDEX        1F74
+WARNINGLOOP         1304
+WARNINGSEQUENCE     1F6A
+WAVE_PERIOD_DIFFICULTY_UP  8
+WHITE               FFFFFF
+WIDTH_CONTAINER     A0
+WIDTH_MAIN_CONTAINER  1EA
